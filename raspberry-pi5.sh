@@ -96,6 +96,7 @@ ln -s /usr/src/kernel source
 cd "${repo_dir}"
 
 # Firmware needed for the wifi
+cd "${work_dir}"
 status 'Clone Wi-Fi/Bluetooth firmware'
 git clone --quiet --depth 1 https://github.com/rpi-distro/firmware-nonfree
 cd firmware-nonfree/debian/config/brcm80211
@@ -103,13 +104,12 @@ rsync -HPaz brcm "${work_dir}"/lib/firmware/
 rsync -HPaz cypress "${work_dir}"/lib/firmware/
 cd "${work_dir}"/lib/firmware/cypress
 ln -sf cyfmac43455-sdio-standard.bin cyfmac43455-sdio.bin
+rm -rf "${work_dir}"/firmware-nonfree
 
 # bluetooth firmware
 wget -q 'https://github.com/RPi-Distro/bluez-firmware/raw/bookworm/debian/firmware/broadcom/BCM4345C0.hcd' -O "${work_dir}"/lib/firmware/brcm/BCM4345C0.hcd
 
 cd "${repo_dir}/"
-# Make sure the firmware directory is cleaned up.
-rm -rf "${repo_dir}"/firmware-nonfree
 
 # Clean system
 include clean_system
