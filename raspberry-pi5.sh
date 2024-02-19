@@ -108,6 +108,8 @@ ln -sf cyfmac43455-sdio-standard.bin cyfmac43455-sdio.bin
 wget -q 'https://github.com/RPi-Distro/bluez-firmware/raw/bookworm/debian/firmware/broadcom/BCM4345C0.hcd' -O "${work_dir}"/lib/firmware/brcm/BCM4345C0.hcd
 
 cd "${repo_dir}/"
+# Make sure the firmware directory is cleaned up.
+rm -rf "${repo_dir}"/firmware-nonfree
 
 # Clean system
 include clean_system
