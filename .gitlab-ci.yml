@@ -16,7 +16,7 @@ variables:
 
 .setup_for_html: &setup_for_html |
   apt-get update
-  apt-get -y install pandoc
+  apt-get --yes --no-install-recommends install install pandoc
 
 linting:
   stage: linting
