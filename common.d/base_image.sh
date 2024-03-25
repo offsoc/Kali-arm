@@ -32,7 +32,7 @@ source ./common.d/check.sh
 include packages
 
 # Execute initial debootstrap
-debootstrap_exec http://http.kali.org/kali
+debootstrap_exec ${mirror}
 
 # Define sources.list
 sources_list
