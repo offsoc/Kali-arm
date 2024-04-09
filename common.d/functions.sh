@@ -573,12 +573,10 @@ function total_time() {
   printf "\n"
 }
 
+# Unmount filesystem
 function umount_partitions() {
     # Make sure we are somewhere we are not going to unmount
     cd "${repo_dir}/"
-
-    # Unmount filesystem
-    log "Unmount filesystem..." green
 
     # If there is boot partition, unmount that first. Else continue as not every ARM device has one
     [ -n "${bootp}" ] &&

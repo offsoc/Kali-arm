@@ -175,6 +175,7 @@ EOF
 include third_stage
 
 ## Fix the the infamous “Authentication Required to Create Managed Color Device” in vnc
+status 'Fix VNC'
 mkdir -p ${work_dir}/etc/polkit-1/localauthority/50-local.d/
 cat <<EOF >${work_dir}/etc/polkit-1/localauthority/50-local.d/45-allow-colord.pkla
 [Allow Colord all Users]
