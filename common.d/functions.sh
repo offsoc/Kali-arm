@@ -35,7 +35,7 @@ function log() {
         echo -e "[i]$1"
 
     else
-        echo -e "$color [i] $1 $(tput sgr0)"
+        echo -e "$color[i] $1${colour_reset}"
 
     fi
 }
@@ -97,7 +97,7 @@ function validate_desktop() {
             variant="minimal" ;;
 
         *)
-            log "⚠️  Unknown desktop:$(tput sgr0) $1\n" red; usage ;;
+            log "⚠️  Unknown desktop:${colour_reset} $1\n" red; usage ;;
 
     esac
 }
@@ -139,7 +139,8 @@ function arguments() {
 
             --no-color | --no-colour)
                 colour_output="no";
-                log "Disabling color output" green;;
+                colour_reset="";
+                log "Disabling color output" green ;;
 
             -h | -help | --help)
                 usage ;;
@@ -156,7 +157,7 @@ function include() {
     local file="$1"
 
     if [[ -f "common.d/${file}.sh" ]]; then
-        log " ✅ Load common file:$(tput sgr0) ${file}" green
+        log " ✅ Load common file:${colour_reset} ${file}" green
 
         # shellcheck source=/dev/null
         source "common.d/${file}.sh" "$@"
@@ -309,7 +310,7 @@ EOF
 function set_locale() {
     LOCALES="$1"
 
-    log "locale:$(tput sgr0) ${LOCALES}" gray
+    log "locale:${colour_reset} ${LOCALES}" gray
     sed -i "s/^# *\($LOCALES\)/\1/" "${work_dir}"/etc/locale.gen
 
     #systemd-nspawn_exec locale-gen
@@ -399,7 +400,7 @@ function make_swap() {
         #sed -i 's/#CONF_SWAPSIZE=/CONF_SWAPSIZE=128/g' ${work_dir}/etc/dphys-swapfile
 
     else
-        [[ -f ${work_dir}/swapfile.img ]] || log "Make Swap:$(tput sgr0) Disabled" yellow
+        [[ -f ${work_dir}/swapfile.img ]] || log "Make Swap:${colour_reset} Disabled" yellow
 
     fi
 }
@@ -409,11 +410,11 @@ function print_config() {
     name_model="$(sed -n '3'p $0)"
 
     log "Compilation info" bold
-    log "  Hardware model: $(tput sgr0)${name_model#* for}" cyan
-    log "  Architecture: $(tput sgr0)$architecture" cyan
-    log "  OS build: $(tput sgr0)$suite $version" cyan
-    log "  Desktop manager: $(tput sgr0)$desktop" cyan
-    log "  The base_dir thinks it is: $(tput sgr0)${base_dir}\n" cyan
+    log "  Hardware model: ${colour_reset}${name_model#* for }" cyan
+    log "  Architecture: ${colour_reset}$architecture" cyan
+    log "  OS build: ${colour_reset}$suite $version" cyan
+    log "  Desktop manager: ${colour_reset}$desktop" cyan
+    log "  The base_dir thinks it is: ${colour_reset}${base_dir}\n" cyan
 }
 
 # Calculate the space to create the image and create.
@@ -425,7 +426,7 @@ function make_image() {
     img_size=$(echo "${raw_size}"Ki | numfmt --from=iec-i --to=si)
 
     # Create the disk image
-    log "Creating image file:$(tput sgr0) ${image_name}.img (Size: ${img_size})" white
+    log "Creating image file:${colour_reset} ${image_name}.img (Size: ${img_size})" white
     [ -d ${image_dir} ] || mkdir -p "${image_dir}/"
     fallocate -l "${img_size}" "${image_dir}/${image_name}.img"
 }
@@ -623,5 +624,5 @@ function check_trap() {
 status() {
     status_i=$((status_i + 1))
     [[ $debug = 1 ]] && timestamp="($(date +"%Y-%m-%d %H:%M:%S"))" || timestamp=""
-    log " ✅ ${status_i}/${status_t}:$(tput sgr0) $1 $timestamp" green
+    log " ✅ ${status_i}/${status_t}:${colour_reset} $1 $timestamp" green
 }

@@ -59,7 +59,13 @@ status_3t=\$(grep '^status_stage3 ' \$0 | wc -l)
 
 status_stage3() {
   status_3i=\$((status_3i+1))
-  echo  "  $(tput setaf 15)✅ Stage 3 (\${status_3i}/\${status_3t}):$(tput setaf 2) \$1$(tput sgr0)"
+  colour1=""
+  colour2=""
+  if [ -n "${colour_reset}" ]; then
+    colour1="$(tput setaf 15)"
+    colour2="$(tput setaf 2)"
+  fi
+  echo  "  ${colour1}✅ Stage 3 (\${status_3i}/\${status_3t}):${colour2} \$1${colour_reset}"
 }
 
 status_stage3 'Update apt'
