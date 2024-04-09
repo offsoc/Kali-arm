@@ -597,9 +597,16 @@ function clean_build() {
     umount_partitions
 
     # Delete files
-    log "Cleaning up the temporary build files..." green
-    rm -rf "${work_dir}"
-    rm -rf "${base_dir}"
+    if [[ $debug = 0 ]]; then
+      log "Cleaning up the temporary build files: ${work_dir}" green
+      rm -rf "${work_dir}"
+      log "Cleaning up the temporary build files: ${base_dir}" green
+      rm -rf "${base_dir}"
+    else
+      log "Skipping cleaning up the temporary build files (due to DEBUG):" green
+      log "- ${work_dir}" green
+      log "- ${base_dir}" green
+    fi
 
     # Done
     log "Done" green
