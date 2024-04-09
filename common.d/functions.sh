@@ -138,7 +138,8 @@ function arguments() {
                 log "Extra Checks: Enabled" green; extra="1" ;;
 
             --no-color | --no-colour)
-                colour_output="no" ;;
+                colour_output="no";
+                log "Disabling color output" green;;
 
             -h | -help | --help)
                 usage ;;
