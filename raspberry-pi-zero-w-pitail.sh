@@ -24,6 +24,7 @@ basic_network
 #add_interface eth0
 
 # Download Pi-Tail files
+status "Download Pi-Tail files"
 git clone --depth 1 https://github.com/re4son/Kali-Pi ${work_dir}/opt/Kali-Pi
 wget -O ${work_dir}/etc/systemd/system/pi-tail.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tail.service
 wget -O ${work_dir}/etc/systemd/system/pi-tailbt.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.service
@@ -58,7 +59,7 @@ chmod 0750 ${work_dir}/etc/skel/.vnc/xstartup
 
 # Third stage
 cat <<EOF >>"${work_dir}"/third-stage
-status_stage3 'Create kali user'
+status_stage3 'Create Kali user'
 # Normally this would be done by runonce, however, because this image is special, and needs the kali home directory
 # to exist before the first boot, we create it here, and remove the script that does it in the runonce stuff later.
 # Create kali user with kali password... but first, we need to manually make some groups because they don't yet exist..
@@ -74,8 +75,8 @@ groupadd -g 1000 kali
 useradd -m -u 1000 -g 1000 -G sudo,audio,bluetooth,cdrom,dialout,dip,lpadmin,netdev,plugdev,scanner,video,kali -s /bin/bash kali
 echo "kali:kali" | chpasswd
 
-status_stage3 'Install PiTail packages'
-eatmydata apt-get install -y ${pitail_pkgs} || eatmydata apt-get install -y --fix-broken
+status_stage3 'Install Pi-Tail packages'
+eatmydata apt-get install -y ${pitail_pkgs}
 
 status_stage3 'Copy rpi services'
 cp -p /bsp/services/rpi/*.service /etc/systemd/system/
@@ -86,7 +87,7 @@ install -m755 /bsp/scripts/monstop /usr/bin/
 
 status_stage3 'Install the kernel packages'
 echo "deb http://http.re4son-kernel.com/re4son kali-pi main" > /etc/apt/sources.list.d/re4son.list
-wget -qO /etc/apt/trusted.gpg.d/kali_pi-archive-keyring.gpg https://re4son-kernel.com/keys/http/kali_pi-archive-keyring.gpg
+wget -O /etc/apt/trusted.gpg.d/kali_pi-archive-keyring.gpg https://re4son-kernel.com/keys/http/kali_pi-archive-keyring.gpg
 eatmydata apt-get update
 eatmydata apt-get install -y ${re4son_pkgs}
 
@@ -164,6 +165,10 @@ rm /etc/runonce.d/00-add-user
 
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
+
+#status_stage3 'Enable hciuart and bluetooth'
+#systemctl enable hciuart
+#systemctl enable bluetooth
 EOF
 
 # Run third stage
@@ -189,8 +194,6 @@ EOF
 # Clean system
 include clean_system
 
-cd "${repo_dir}/"
-
 # Calculate the space to create the image and create
 make_image
 
@@ -206,8 +209,11 @@ make_loop
 # Create file systems
 mkfs_partitions
 
-# Make fstab.
+# Make fstab
 make_fstab
+
+# Configure Raspberry Pi firmware
+#include rpi_firmware
 
 # Create the dirs for the partitions and mount them
 status "Create the dirs for the partitions and mount them"
@@ -215,10 +221,8 @@ mkdir -p "${base_dir}"/root/
 
 if [[ $fstype == ext4 ]]; then
     mount -t ext4 -o noatime,data=writeback,barrier=0 "${rootp}" "${base_dir}"/root
-
 else
     mount "${rootp}" "${base_dir}"/root
-
 fi
 
 mkdir -p "${base_dir}"/root/boot

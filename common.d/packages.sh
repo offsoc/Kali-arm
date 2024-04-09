@@ -87,7 +87,7 @@ git libterm-readline-gnu-perl locales wget"
 re4son_pkgs="kalipi-bootloader kalipi-config kalipi-kernel kalipi-kernel-headers \
 kalipi-re4son-firmware kalipi-tft-config pi-bluetooth"
 
-# PiTail specific packages
+# Pi-Tail specific packages
 pitail_pkgs="bluelog blueranger bluesnarfer bluez-tools bridge-utils cmake \
-darkstat dnsmasq htop libusb-1.0-0-dev locate mailutils pure-ftpd 
-tigervnc-standalone-server wifiphisher"
+darkstat dnsmasq htop libusb-1.0-0-dev locate mailutils pure-ftpd \
+tightvncpasswd tigervnc-standalone-server wifiphisher"
