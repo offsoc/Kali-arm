@@ -58,7 +58,7 @@ if [ -f "${image_dir}/${image_name}.img.$compress" ]; then
 fi
 
 # Clean up all the temporary build stuff and remove the directories
-clean_build
+#clean_build
 
 # Quit
 log "\n Your image is: $(tput sgr0) $img (Size: $(du -h $img | cut -f1))" bold
