@@ -7,4 +7,10 @@
 # More information: https://www.kali.org/docs/arm/raspberry-pi-64-bit/
 #
 
+# Hardware model
+export hw_model=${hw_model:-"raspberry-pi"}
+
+# Architecture
+export architecture=${architecture:-"arm64"}
+
 ./raspberry-pi.sh --arch arm64 "$@"

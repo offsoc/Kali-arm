@@ -3,7 +3,7 @@
 # Check EUID=0 you can run any binary as root.
 if [[ $EUID -ne 0 ]]; then
     log "This script must be run as root or have super user permissions" red
-    log "Use: $(tput sgr0)sudo $0" green
+    log "Use: ${colour_reset}sudo $0" green
 
     exit 1
 

@@ -95,7 +95,7 @@ export MALLOC_CHECK_=0
 
 # Load build configuration
 if [ -f "${repo_dir}"/builder.txt ]; then
-  echo "Loading: "${repo_dir}"/builder.txt"
+  log "Loading: "${repo_dir}"/builder.txt"
   
   # shellcheck source=/dev/null
   source "${repo_dir}"/builder.txt
@@ -118,3 +118,4 @@ status_t=$(($(grep '.*status ' $0 common.d/*.sh | wc -l) -1))
 
 ## Enable colour (--no-colour)
 colour_output="${colour_output:-yes}"
+colour_reset=${colour_reset:-$( tput sgr0 )}

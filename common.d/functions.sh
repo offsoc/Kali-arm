@@ -4,6 +4,7 @@
 # Print color echo
 function log() {
     local set_color="$2"
+    color=""
 
     case $set_color in
         bold)
@@ -27,20 +28,14 @@ function log() {
         white)
             color=$(tput setaf 15) ;;
 
-        *)
-            text="$1" ;;
-
     esac
 
     ## --no-color
-    if [ "$colour_output" == "no" ]; then
-        echo -e "$1"
-
-    elif [ -z "$text" ]; then
-        echo -e "$color $1 $(tput sgr0)"
+    if [ "$colour_output" == "no" ] || [ -z "$color" ]; then
+        echo -e "[i] $1"
 
     else
-        echo -e "$text"
+        echo -e "$color[i] $1${colour_reset}"
 
     fi
 }
@@ -102,7 +97,7 @@ function validate_desktop() {
             variant="minimal" ;;
 
         *)
-            log "\n ⚠️  Unknown desktop:$(tput sgr0) $1\n" red; usage ;;
+            log "⚠️  Unknown desktop:${colour_reset} $1\n" red; usage ;;
 
     esac
 }
@@ -143,7 +138,9 @@ function arguments() {
                 log "Extra Checks: Enabled" green; extra="1" ;;
 
             --no-color | --no-colour)
-                colour_output="no" ;;
+                colour_output="no";
+                colour_reset="";
+                log "Disabling color output" green ;;
 
             -h | -help | --help)
                 usage ;;
@@ -160,14 +157,14 @@ function include() {
     local file="$1"
 
     if [[ -f "common.d/${file}.sh" ]]; then
-        log " ✅ Load common file:$(tput sgr0) ${file}" green
+        log "✅ Load common file:${colour_reset} ${file}" green
 
         # shellcheck source=/dev/null
         source "common.d/${file}.sh" "$@"
         return 0
 
     else
-        log " ⚠️  Fail to load ${file} file" red
+        log "⚠️  Fail to load ${file} file" red
 
         [ "${debug}" = 1 ] && pwd || true
 
@@ -191,7 +188,7 @@ function systemd-nspawn_exec() {
 
 # Create the rootfs - not much to modify here, except maybe throw in some more packages if you want.
 function debootstrap_exec() {
-    status " debootstrap ${suite} $*"
+    status "debootstrap ${suite} $*"
 
     if [ "$(lsb_release -sc)" == "bullseye" ]; then
     eatmydata debootstrap --merged-usr --keyring=/usr/share/keyrings/kali-archive-keyring.gpg --components="${components}" \
@@ -302,7 +299,7 @@ function limit_cpu() {
 
 function sources_list() {
     # Define sources.list
-    log " ✅ define sources.list" green
+    log "✅ define sources.list" green
     cat <<EOF >"${work_dir}"/etc/apt/sources.list
 deb ${mirror} ${suite} ${components//,/ }
 #deb-src ${mirror} ${suite} ${components//,/ }
@@ -313,7 +310,7 @@ EOF
 function set_locale() {
     LOCALES="$1"
 
-    log "locale:$(tput sgr0) ${LOCALES}" gray
+    log "locale:${colour_reset} ${LOCALES}" gray
     sed -i "s/^# *\($LOCALES\)/\1/" "${work_dir}"/etc/locale.gen
 
     #systemd-nspawn_exec locale-gen
@@ -334,7 +331,7 @@ EOM
 # Set hostname
 function set_hostname() {
     if [[ "$1" =~ ^[a-zA-Z0-9-]{2,63}+$ ]]; then
-        log " Created /etc/hostname" white
+        log "Created /etc/hostname" white
         echo "$1" >"${work_dir}"/etc/hostname
 
     else
@@ -355,7 +352,7 @@ auto $netdev
     iface $netdev inet dhcp
 EOF
 
-        log " Configured /etc/network/interfaces.d/$netdev" white
+        log "Configured /etc/network/interfaces.d/$netdev" white
 
     done
 }
@@ -363,7 +360,7 @@ EOF
 function basic_network() {
     # Disable IPv6
     if [ "$disable_ipv6" = "yes" ]; then
-        log " Disable IPv6" white
+        log "Disable IPv6" white
 
         echo "# Don't load ipv6 by default" >"${work_dir}"/etc/modprobe.d/ipv6.conf
         echo "alias net-pf-10 off" >>"${work_dir}"/etc/modprobe.d/ipv6.conf
@@ -382,7 +379,7 @@ EOF
 function make_hosts() {
     set_hostname "${hostname}"
 
-    log " Created /etc/hosts" white
+    log "Created /etc/hosts" white
     cat <<EOF >"${work_dir}"/etc/hosts
 127.0.1.1       ${hostname:=}
 127.0.0.1       localhost
@@ -403,23 +400,21 @@ function make_swap() {
         #sed -i 's/#CONF_SWAPSIZE=/CONF_SWAPSIZE=128/g' ${work_dir}/etc/dphys-swapfile
 
     else
-        [[ -f ${work_dir}/swapfile.img ]] || log "Make Swap:$(tput sgr0) Disabled" yellow
+        [[ -f ${work_dir}/swapfile.img ]] || log "Make Swap:${colour_reset} Disabled" yellow
 
     fi
 }
 
 # Print current config.
 function print_config() {
-    log "\n Compilation info" bold
     name_model="$(sed -n '3'p $0)"
 
-    log "Hardware model: $(tput sgr0)${name_model#* for}" cyan
-    log "Architecture: $(tput sgr0)$architecture" cyan
-    log "OS build: $(tput sgr0)$suite $version" cyan
-    log "Desktop manager: $(tput sgr0)$desktop" cyan
-    log "The base_dir thinks it is: $(tput sgr0)${base_dir}\n" cyan
-
-    sleep 1.5
+    log "Compilation info" bold
+    log "  Hardware model: ${colour_reset}${name_model#* for }" cyan
+    log "  Architecture: ${colour_reset}$architecture" cyan
+    log "  OS build: ${colour_reset}$suite $version" cyan
+    log "  Desktop manager: ${colour_reset}$desktop" cyan
+    log "  The base_dir thinks it is: ${colour_reset}${base_dir}" cyan
 }
 
 # Calculate the space to create the image and create.
@@ -431,7 +426,7 @@ function make_image() {
     img_size=$(echo "${raw_size}"Ki | numfmt --from=iec-i --to=si)
 
     # Create the disk image
-    log "Creating image file:$(tput sgr0) ${image_name}.img (Size: ${img_size})" white
+    log "Creating image file:${colour_reset} ${image_name}.img (Size: ${img_size})" white
     [ -d ${image_dir} ] || mkdir -p "${image_dir}/"
     fallocate -l "${img_size}" "${image_dir}/${image_name}.img"
 }
@@ -578,12 +573,10 @@ function total_time() {
   printf "\n"
 }
 
+# Unmount filesystem
 function umount_partitions() {
     # Make sure we are somewhere we are not going to unmount
     cd "${repo_dir}/"
-
-    # Unmount filesystem
-    log "Unmount filesystem..." green
 
     # If there is boot partition, unmount that first. Else continue as not every ARM device has one
     [ -n "${bootp}" ] &&
@@ -598,12 +591,20 @@ function clean_build() {
     log "Cleaning up" green
 
     # unmount anything that may be mounted
+    log "Un-mount anything that may be mounted" green
     umount_partitions
 
     # Delete files
-    log "Cleaning up the temporary build files..." green
-    rm -rf "${work_dir}"
-    rm -rf "${base_dir}"
+    if [[ $debug = 0 ]]; then
+      log "Cleaning up the temporary build files: ${work_dir}" green
+      rm -rf "${work_dir}"
+      log "Cleaning up the temporary build files: ${base_dir}" green
+      rm -rf "${base_dir}"
+    else
+      log "Skipping cleaning up the temporary build files (due to DEBUG):" green
+      log "- ${work_dir}" green
+      log "- ${base_dir}" green
+    fi
 
     # Done
     log "Done" green
@@ -611,7 +612,7 @@ function clean_build() {
 }
 
 function check_trap() {
-    log "\n ⚠️  An error has occurred!\n" red
+    log "⚠️  An error has occurred!\n" red
     clean_build
 
     exit 1
@@ -621,5 +622,5 @@ function check_trap() {
 status() {
     status_i=$((status_i + 1))
     [[ $debug = 1 ]] && timestamp="($(date +"%Y-%m-%d %H:%M:%S"))" || timestamp=""
-    log " ✅ ${status_i}/${status_t}:$(tput sgr0) $1 $timestamp" green
+    log "✅ ${status_i}/${status_t}:${colour_reset} $1 $timestamp" green
 }
