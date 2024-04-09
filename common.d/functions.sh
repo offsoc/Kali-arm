@@ -4,6 +4,7 @@
 # Print color echo
 function log() {
     local set_color="$2"
+    color=""
 
     case $set_color in
         bold)
@@ -27,20 +28,14 @@ function log() {
         white)
             color=$(tput setaf 15) ;;
 
-        *)
-            text="$1" ;;
-
     esac
 
     ## --no-color
-    if [ "$colour_output" == "no" ]; then
-        echo -e "$1"
-
-    elif [ -z "$text" ]; then
-        echo -e "$color $1 $(tput sgr0)"
+    if [ "$colour_output" == "no" ] || [ -z "$color" ]; then
+        echo -e "[i]$1"
 
     else
-        echo -e "$text"
+        echo -e "$color [i] $1 $(tput sgr0)"
 
     fi
 }
