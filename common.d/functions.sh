@@ -32,7 +32,7 @@ function log() {
 
     ## --no-color
     if [ "$colour_output" == "no" ] || [ -z "$color" ]; then
-        echo -e "[i]$1"
+        echo -e "[i] $1"
 
     else
         echo -e "$color[i] $1${colour_reset}"
@@ -157,14 +157,14 @@ function include() {
     local file="$1"
 
     if [[ -f "common.d/${file}.sh" ]]; then
-        log " ✅ Load common file:${colour_reset} ${file}" green
+        log "✅ Load common file:${colour_reset} ${file}" green
 
         # shellcheck source=/dev/null
         source "common.d/${file}.sh" "$@"
         return 0
 
     else
-        log " ⚠️  Fail to load ${file} file" red
+        log "⚠️  Fail to load ${file} file" red
 
         [ "${debug}" = 1 ] && pwd || true
 
@@ -299,7 +299,7 @@ function limit_cpu() {
 
 function sources_list() {
     # Define sources.list
-    log " ✅ define sources.list" green
+    log "✅ define sources.list" green
     cat <<EOF >"${work_dir}"/etc/apt/sources.list
 deb ${mirror} ${suite} ${components//,/ }
 #deb-src ${mirror} ${suite} ${components//,/ }
@@ -331,7 +331,7 @@ EOM
 # Set hostname
 function set_hostname() {
     if [[ "$1" =~ ^[a-zA-Z0-9-]{2,63}+$ ]]; then
-        log " Created /etc/hostname" white
+        log "Created /etc/hostname" white
         echo "$1" >"${work_dir}"/etc/hostname
 
     else
@@ -352,7 +352,7 @@ auto $netdev
     iface $netdev inet dhcp
 EOF
 
-        log " Configured /etc/network/interfaces.d/$netdev" white
+        log "Configured /etc/network/interfaces.d/$netdev" white
 
     done
 }
@@ -360,7 +360,7 @@ EOF
 function basic_network() {
     # Disable IPv6
     if [ "$disable_ipv6" = "yes" ]; then
-        log " Disable IPv6" white
+        log "Disable IPv6" white
 
         echo "# Don't load ipv6 by default" >"${work_dir}"/etc/modprobe.d/ipv6.conf
         echo "alias net-pf-10 off" >>"${work_dir}"/etc/modprobe.d/ipv6.conf
@@ -379,7 +379,7 @@ EOF
 function make_hosts() {
     set_hostname "${hostname}"
 
-    log " Created /etc/hosts" white
+    log "Created /etc/hosts" white
     cat <<EOF >"${work_dir}"/etc/hosts
 127.0.1.1       ${hostname:=}
 127.0.0.1       localhost
@@ -624,5 +624,5 @@ function check_trap() {
 status() {
     status_i=$((status_i + 1))
     [[ $debug = 1 ]] && timestamp="($(date +"%Y-%m-%d %H:%M:%S"))" || timestamp=""
-    log " ✅ ${status_i}/${status_t}:${colour_reset} $1 $timestamp" green
+    log "✅ ${status_i}/${status_t}:${colour_reset} $1 $timestamp" green
 }
