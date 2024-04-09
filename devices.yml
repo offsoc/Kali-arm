@@ -267,7 +267,7 @@ devices:
             image-notes: ""
 
           - image: "raspberry-pi-zero-2-w-pitail-armhf.img"
-            name: "Raspberry Pi Zero 2 W (PiTail)"
+            name: "Raspberry Pi Zero 2 W (Pi-Tail)"
             architecture: "armhf"
             preferred-image: "false"
             support: "kali"
@@ -305,7 +305,7 @@ devices:
             image-notes: ""
 
           - image: "raspberry-pi-zero-w-pitail-armel.img"
-            name: "Raspberry Pi Zero W (PiTail)"
+            name: "Raspberry Pi Zero W (Pi-Tail)"
             architecture: "armel"
             preferred-image: "false"
             support: "kali"
