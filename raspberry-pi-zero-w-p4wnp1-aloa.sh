@@ -139,7 +139,7 @@ status 'Clone bootloader and firmware'
 git clone -b 1.20181112 --depth 1 https://github.com/raspberrypi/firmware.git "${work_dir}"/rpi-firmware
 cp -rf "${work_dir}"/rpi-firmware/boot/* "${work_dir}"/boot/
 
-# Copy over Pi specific libs (video core) and binaries (dtoverlay,dtparam ...)
+# Copy over Pi specific libs (video core) and binaries (dtoverlay,dtparam...)
 cp -rf "${work_dir}"/rpi-firmware/opt/* "${work_dir}"/opt/
 rm -rf "${work_dir}"/rpi-firmware
 

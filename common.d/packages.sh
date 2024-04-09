@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-log "Selecting packages ..." gray
+log "Selecting packages..." gray
 
 debootstrap_base="kali-archive-keyring,eatmydata,usrmerge"
 
@@ -75,7 +75,7 @@ if [ "$minimal" = "1" ]; then
 
     fi
 
-    log "Selecting $image_mode mode ..." gray
+    log "Selecting $image_mode mode..." gray
 
 fi
 
