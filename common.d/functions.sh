@@ -102,7 +102,7 @@ function validate_desktop() {
             variant="minimal" ;;
 
         *)
-            log "\n ⚠️  Unknown desktop:$(tput sgr0) $1\n" red; usage ;;
+            log "⚠️  Unknown desktop:$(tput sgr0) $1\n" red; usage ;;
 
     esac
 }
@@ -410,7 +410,6 @@ function make_swap() {
 
 # Print current config.
 function print_config() {
-    log "\n Compilation info" bold
     name_model="$(sed -n '3'p $0)"
 
     log "Hardware model: $(tput sgr0)${name_model#* for}" cyan
@@ -420,6 +419,7 @@ function print_config() {
     log "The base_dir thinks it is: $(tput sgr0)${base_dir}\n" cyan
 
     sleep 1.5
+    log "Compilation info" bold
 }
 
 # Calculate the space to create the image and create.
@@ -611,7 +611,7 @@ function clean_build() {
 }
 
 function check_trap() {
-    log "\n ⚠️  An error has occurred!\n" red
+    log "⚠️  An error has occurred!\n" red
     clean_build
 
     exit 1

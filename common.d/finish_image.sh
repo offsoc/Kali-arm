@@ -61,5 +61,5 @@ fi
 #clean_build
 
 # Quit
-log "\n Your image is: $(tput sgr0) $img (Size: $(du -h $img | cut -f1))" bold
+log "Your image is: $(tput sgr0) $img (Size: $(du -h $img | cut -f1))" bold
 exit 0
