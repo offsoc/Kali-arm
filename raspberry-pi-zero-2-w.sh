@@ -79,7 +79,7 @@ make_loop
 # Create file systems
 mkfs_partitions
 
-# Make fstab.
+# Make fstab
 make_fstab
 
 # Configure Raspberry Pi firmware (set config.txt to 64-bit)
@@ -91,10 +91,8 @@ mkdir -p "${base_dir}"/root/
 
 if [[ $fstype == ext4 ]]; then
     mount -t ext4 -o noatime,data=writeback,barrier=0 "${rootp}" "${base_dir}"/root
-
 else
     mount "${rootp}" "${base_dir}"/root
-
 fi
 
 mkdir -p "${base_dir}"/root/boot
