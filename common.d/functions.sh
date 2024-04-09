@@ -188,7 +188,7 @@ function systemd-nspawn_exec() {
 
 # Create the rootfs - not much to modify here, except maybe throw in some more packages if you want.
 function debootstrap_exec() {
-    status " debootstrap ${suite} $*"
+    status "debootstrap ${suite} $*"
 
     if [ "$(lsb_release -sc)" == "bullseye" ]; then
     eatmydata debootstrap --merged-usr --keyring=/usr/share/keyrings/kali-archive-keyring.gpg --components="${components}" \
@@ -414,7 +414,7 @@ function print_config() {
     log "  Architecture: ${colour_reset}$architecture" cyan
     log "  OS build: ${colour_reset}$suite $version" cyan
     log "  Desktop manager: ${colour_reset}$desktop" cyan
-    log "  The base_dir thinks it is: ${colour_reset}${base_dir}\n" cyan
+    log "  The base_dir thinks it is: ${colour_reset}${base_dir}" cyan
 }
 
 # Calculate the space to create the image and create.
