@@ -75,7 +75,7 @@ EOF
 
 # Debug function
 function debug_enable() {
-    log="./logs/$( basename ${a%%.*} )-$(date +"%Y-%m-%d-%H-%M").log"
+    log="./logs/${0%.*}-$(date +"%Y-%m-%d-%H-%M").log"
     mkdir -p ./logs/
     log "Debug: Enabled" green
     log "Output: ${log}" green
