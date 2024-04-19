@@ -34,7 +34,7 @@ cli_tools_pkgs="kali-linux-headless"
 case $desktop in
     xfce | gnome | kde | i3 | lxde | mate | e17)
         desktop_pkgs="kali-desktop-$desktop kali-linux-default alsa-utils \
-        xfonts-terminus xinput xserver-xorg-video-fbdev \xserver-xorg-input-libinput" ;;
+        xfonts-terminus xinput xserver-xorg-video-fbdev xserver-xorg-input-libinput" ;;
 
     none | slim | miminal) 
         variant="minimal"; minimal="1"; desktop_pkgs="" ;;
