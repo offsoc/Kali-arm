@@ -31,10 +31,14 @@ cli_tools_pkgs="kali-linux-headless"
 # Desktop packages to install - default is specified after the desktop because
 # we want to pull in the desktop's default terminal first instead of relying on
 # something else to pull in x-terminal-emulator from the defaults.
+# The texlive packages cause the build to take 4x as long, so we pass the
+# package name with a - in order to tell apt-get to *not* install them.
 case $desktop in
     xfce | gnome | kde | i3 | lxde | mate | e17)
         desktop_pkgs="kali-desktop-$desktop kali-linux-default alsa-utils \
-        xfonts-terminus xinput xserver-xorg-video-fbdev xserver-xorg-input-libinput" ;;
+        xfonts-terminus xinput xserver-xorg-video-fbdev xserver-xorg-input-libinput \
+        texlive-fonts-recommended- texlive-latex-base- texlive-latex-extra- \
+        texlive-latex-recommended- texlive-pictures-" ;;
 
     none | slim | miminal) 
         variant="minimal"; minimal="1"; desktop_pkgs="" ;;
