@@ -99,7 +99,7 @@ function validate_desktop() {
             variant="minimal" ;;
 
         *)
-            log "⚠️  Unknown desktop:${colour_reset} $1\n" red; usage ;;
+            log "⚠️ Unknown desktop:${colour_reset} $1\n" red; usage ;;
 
     esac
 }
@@ -166,7 +166,7 @@ function include() {
         return 0
 
     else
-        log "⚠️  Fail to load ${file} file" red
+        log "⚠️ Fail to load ${file} file" red
 
         [ "${debug}" = 1 ] && pwd || true
 
@@ -614,7 +614,7 @@ function clean_build() {
 }
 
 function check_trap() {
-    log "⚠️  An error has occurred!\n" red
+    log "⚠️ An error has occurred!\n" red
     clean_build
 
     exit 1
