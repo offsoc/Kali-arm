@@ -75,7 +75,9 @@ EOF
 
 # Debug function
 function debug_enable() {
-    log="./logs/${0%.*}-$(date +"%Y-%m-%d-%H-%M").log"
+    currentdir="${0##*/}"
+    basenamedir="${currentdir%.*}"
+    log="./logs/${basenamedir}_$(date +"%Y-%m-%d-%H-%M").log"
     mkdir -p ./logs/
     log "Debug: Enabled" green
     log "Output: ${log}" green
@@ -97,7 +99,7 @@ function validate_desktop() {
             variant="minimal" ;;
 
         *)
-            log "⚠️  Unknown desktop:${colour_reset} $1\n" red; usage ;;
+            log "⚠️ Unknown desktop:${colour_reset} $1\n" red; usage ;;
 
     esac
 }
@@ -164,7 +166,7 @@ function include() {
         return 0
 
     else
-        log "⚠️  Fail to load ${file} file" red
+        log "⚠️ Fail to load ${file} file" red
 
         [ "${debug}" = 1 ] && pwd || true
 
@@ -612,14 +614,14 @@ function clean_build() {
 }
 
 function check_trap() {
-    log "⚠️  An error has occurred!\n" red
+    log "⚠️ An error has occurred!\n" red
     clean_build
 
     exit 1
 }
 
 # Show progress
-status() {
+function status() {
     status_i=$((status_i + 1))
     [[ $debug = 1 ]] && timestamp="($(date +"%Y-%m-%d %H:%M:%S"))" || timestamp=""
     log "✅ ${status_i}/${status_t}:${colour_reset} $1 $timestamp" green
