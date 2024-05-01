@@ -849,7 +849,7 @@ devices:
             name: "Gateworks Ventana"
             architecture: "armhf"
             preferred-image: "false"
-            support: "kali"
+            support: "community"
             slug: "gateworks-ventana"
             build-script: "gateworks-ventana.sh"
             kernel: "vendor"
