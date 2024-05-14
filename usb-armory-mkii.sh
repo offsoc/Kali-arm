@@ -26,7 +26,7 @@ add_interface eth0
 # Third stage
 cat <<EOF >>"${work_dir}"/third-stage
 status_stage3 'Install dhcp and vnc server'
-eatmydata apt-get install -y isc-dhcp-server tightvncserver || eatmydata apt-get install -y --fix-broken
+eatmydata apt-get install -y isc-dhcp-server tightvncserver
 
 status_stage3 'Remove /etc/modules*'
 rm /etc/modules
