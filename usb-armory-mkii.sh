@@ -3,7 +3,7 @@
 # Kali Linux ARM build-script for USB Armory MKII (32-bit)
 # Source: https://gitlab.com/kalilinux/build-scripts/kali-arm
 #
-# This is a community script - you will need to generate your own image to use
+# This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
 # More information: https://www.kali.org/docs/arm/usb-armory-mkii/
 #
 
@@ -26,7 +26,7 @@ add_interface eth0
 # Third stage
 cat <<EOF >>"${work_dir}"/third-stage
 status_stage3 'Install dhcp and vnc server'
-eatmydata apt-get install -y isc-dhcp-server tightvncserver || eatmydata apt-get install -y --fix-broken
+eatmydata apt-get install -y isc-dhcp-server tightvncserver
 
 status_stage3 'Remove /etc/modules*'
 rm /etc/modules

@@ -76,14 +76,14 @@ status_stage3 'Install core packages'
 eatmydata apt-get -y install ${third_stage_pkgs}
 
 status_stage3 'Install packages'
-eatmydata apt-get install -y ${packages} || eatmydata apt-get install -y --fix-broken
+eatmydata apt-get install -y ${packages}
 EOF
 
 if [ "${desktop}" != "none" ]; then
   log "Desktop mode enabled: ${desktop}" green
   cat <<EOF >>"${work_dir}/third-stage"
 status_stage3 'Install desktop packages'
-eatmydata apt-get install -y ${desktop_pkgs} ${extra} || eatmydata apt-get install -y --fix-broken
+eatmydata apt-get install -y ${desktop_pkgs} ${extra}
 
 if [ -e /etc/lightdm/lightdm.conf ]; then
 status_stage3 'Set logind check graphical to false'
