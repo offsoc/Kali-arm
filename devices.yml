@@ -352,7 +352,7 @@ devices:
             slug: "pinebook"
             build-script: "pinebook.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-arm64"
             image-notes: ""
 
       - board: "pinebook-pro"
@@ -381,7 +381,7 @@ devices:
             slug: "pinebook-pro"
             build-script: "pinebook-pro.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-arm64"
             image-notes: ""
 
   - banana:
@@ -409,7 +409,7 @@ devices:
             slug: "banana-pi"
             build-script: "banana-pi.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-arm64"
             image-notes: ""
 
       - board: "banana-pro"
@@ -436,7 +436,7 @@ devices:
             slug: "banana-pro"
             build-script: "banana-pro.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-arm64"
             image-notes: ""
 
   - beagle:
@@ -657,7 +657,7 @@ devices:
             slug: "trimslice"
             build-script: "trimslice.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-armhf"
             image-notes: ""
 
       - board: "utilite-pro"
@@ -796,7 +796,7 @@ devices:
             slug: "cubox-i4pro"
             build-script: "cubox-i4pro.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-armhf"
             image-notes: ""
 
   - gateworks:
@@ -826,7 +826,7 @@ devices:
             slug: "gateworks-newport"
             build-script: "gateworks-newport.sh"
             kernel: "vendor"
-            kernel-version: "5.4.45"
+            kernel-version: "5.15.15"
             image-notes: ""
 
       - board: "gateworks-ventana"
@@ -1039,7 +1039,7 @@ devices:
             slug: "nanopi-neo-plus2"
             build-script: "nanopi-neo-plus2.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-arm64"
             image-notes: ""
 
       - board: "nanopi2"
@@ -1202,7 +1202,7 @@ devices:
             slug: "odroid-c2"
             build-script: "odroid-c2.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-arm64"
             image-notes: ""
 
       - board: "odroid-u2"
@@ -1423,7 +1423,7 @@ devices:
             slug: "riotboard"
             build-script: "riotboard.sh"
             kernel: "kali"
-            kernel-version: "5.18.0-kali1-arm64"
+            kernel-version: "6.6.15-armhf"
             image-notes: ""
 
   - radxa:
@@ -1453,7 +1453,7 @@ devices:
             # slug: "radxa-zero-emmc"
             build-script: "radxa-zero-emmc.sh"
             kernel: "custom"
-            kernel-version: "5.10.123"
+            kernel-version: "5.10.208"
             image-notes: ""
 
           - image: "radxa-zero-sdcard-arm64.img"
@@ -1464,7 +1464,7 @@ devices:
             # slug: "radxa-zero-sdcard"
             build-script: "radxa-zero-sdcard.sh"
             kernel: "custom"
-            kernel-version: "5.10.123"
+            kernel-version: "5.10.208"
             image-notes: ""
 
   - withsecure:
@@ -1492,7 +1492,7 @@ devices:
             slug: "usb-armory-mki"
             build-script: "usb-armory-mki.sh"
             kernel: "vendor"
-            kernel-version: "5.15"
+            kernel-version: "5.15.160"
             image-notes: ""
 
       - board: "usb-armory-mkii"
@@ -1519,5 +1519,5 @@ devices:
             slug: "usb-armory-mkii"
             build-script: "usb-armory-mkii.sh"
             kernel: "vendor"
-            kernel-version: "5.15"
+            kernel-version: "5.15.160"
             image-notes: ""
