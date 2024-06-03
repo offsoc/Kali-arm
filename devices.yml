@@ -209,7 +209,7 @@ devices:
             slug: "raspberry-pi-5"
             build-script: "raspberry-pi5.sh"
             kernel: "custom"
-            kernel-version: "6.1.63"
+            kernel-version: "6.1.77"
             image-notes: ""
 
       - board: "raspberry-pi1"
