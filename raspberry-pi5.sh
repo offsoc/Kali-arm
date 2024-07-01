@@ -73,7 +73,7 @@ status 'Clone and build kernel'
 git clone --quiet --depth 1 https://github.com/raspberrypi/linux -b rpi-6.1.y "${work_dir}"/usr/src/kernel
 cd "${work_dir}"/usr/src/kernel
 patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-6.1.patch
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0001-net-wireless-brcmfmac-Add-nexmon-support.patch
+#patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0001-net-wireless-brcmfmac-Add-nexmon-support.patch
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc)
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_install INSTALL_MOD_PATH="${work_dir}"
