@@ -183,11 +183,14 @@ function systemd-nspawn_exec() {
     ENV2="LANG=C"
     ENV3="DEBIAN_FRONTEND=noninteractive"
     ENV4="DEBCONF_NOWARNINGS=yes"
-    ENV5="QEMU_CPU=max,pauth-impdef=on"
+    # Jenkins server doesn't have this??
+    #ENV5="QEMU_CPU=max,pauth-impdef=on"
+    ENV5="QEMU_CPU=cortex-a72"
 
     if [ "$(arch)" != "aarch64" ]; then
         # Ensure we export QEMU_CPU so its set for systemd-nspawn to use
-        export QEMU_CPU=max,pauth-impdef=on
+        #export QEMU_CPU=max,pauth-impdef=on
+        export QEMU_CPU=cortex-a72
         systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -E $ENV5 -M "$machine" -D "$work_dir" "$@"
     else
         systemd-nspawn $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "$work_dir" "$@"
