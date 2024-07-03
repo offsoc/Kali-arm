@@ -179,12 +179,18 @@ function include() {
 # Putting quotes around $extra_args causes systemd-nspawn to pass the extra arguments as 1, so leave it unquoted.
 function systemd-nspawn_exec() {
     log "systemd-nspawn $*" gray
-    ENV="RUNLEVEL=1,LANG=C,DEBIAN_FRONTEND=noninteractive,DEBCONF_NOWARNINGS=yes,QEMU_CPU=max,pauth-impdef=on"
+    ENV1="RUNLEVEL=1"
+    ENV2="LANG=C"
+    ENV3="DEBIAN_FRONTEND=noninteractive"
+    ENV4="DEBCONF_NOWARNINGS=yes"
+    ENV5="QEMU_CPU=max,pauth-impdef=on"
 
     if [ "$(arch)" != "aarch64" ]; then
-        systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV -M "$machine" -D "$work_dir" "$@"
+        # Ensure we export QEMU_CPU so its set for systemd-nspawn to use
+        export QEMU_CPU=max,pauth-impdef=on
+        systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -E $ENV5 -M "$machine" -D "$work_dir" "$@"
     else
-        systemd-nspawn $extra_args --capability=cap_setfcap -E $ENV -M "$machine" -D "$work_dir" "$@"
+        systemd-nspawn $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "$work_dir" "$@"
     fi
 }
 

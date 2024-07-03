@@ -69,7 +69,6 @@ status_stage3() {
 }
 
 status_stage3 'Update apt'
-export DEBIAN_FRONTEND=noninteractive
 eatmydata apt-get update
 
 status_stage3 'Install core packages'
