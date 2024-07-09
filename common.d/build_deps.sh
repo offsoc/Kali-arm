@@ -123,11 +123,11 @@ dpkg --get-selections >${backup_packages}
 
 compilers="crossbuild-essential-arm64 crossbuild-essential-armhf crossbuild-essential-armel gcc-arm-none-eabi"
 
-dependencies="gnupg flex bison gperf build-essential zip curl libncurses-dev zlib1g-dev \
-parted kpartx debootstrap pixz qemu-user-static abootimg cgpt vboot-kernel-utils vboot-utils \
-u-boot-tools bc lzma lzop automake autoconf m4 rsync schedtool git dosfstools e2fsprogs \
-device-tree-compiler libssl-dev systemd-container libgmp3-dev gawk qpdf make libfl-dev swig \
-dbus python3-dev cgroup-tools lsof jetring eatmydata cmake pkg-config less mmdebstrap"
+dependencies="abootimg autoconf automake bc bison build-essential cgpt cgroup-tools cmake curl dbus   \
+debootstrap device-tree-compiler dosfstools e2fsprogs eatmydata flex gawk git gnupg gperf jetring     \
+kpartx less libfl-dev libgmp3-dev libncurses-dev libssl-dev lsof lzma lzop m4 make mmdebstrap parted  \
+pixz pkg-config python3-dev qemu-user-static qpdf rsync schedtool swig systemd-container u-boot-tools \
+vboot-kernel-utils vboot-utils zip zlib1g-dev"
 
 deps="${dependencies} ${compilers}"
 
