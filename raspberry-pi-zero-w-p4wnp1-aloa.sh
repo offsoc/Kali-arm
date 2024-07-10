@@ -80,11 +80,6 @@ status_stage3 'Disable dhcpcd'
 # was explcitely enabled by P4wnP1 for this interface)
 systemctl disable dhcpcd
 
-status_stage3 'Enable fake-hwclock'
-# enable fake-hwclock (P4wnP1 is intended to reboot/loose power frequently without getting NTP access in between)
-# a clean shutdown/reboot is needed, as fake-hwclock service saves time on stop
-systemctl enable fake-hwclock
-
 status_stage3 'Copy config.txt into place'
 # Copy a default config, with everything commented out so people find it when
 # they go to add something when they are following instructions on a website
