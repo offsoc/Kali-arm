@@ -84,7 +84,7 @@ status_stage3 'Only listen on usb0'
 sed -i -e 's/INTERFACES.*/INTERFACES="usb0"/g' /etc/default/isc-dhcp-server
 
 status_stage3 'Enable dhcp server'
-update-rc.d isc-dhcp-server enable
+systemctl enable isc-dhcp-server
 
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
