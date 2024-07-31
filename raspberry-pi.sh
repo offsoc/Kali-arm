@@ -37,6 +37,11 @@ wget -O /etc/apt/trusted.gpg.d/kali_pi-archive-keyring.gpg https://re4son-kernel
 eatmydata apt-get update
 eatmydata apt-get install -y ${re4son_pkgs}
 
+status_stage3 'Create symlink for Raspberry Pi 4 Compute Module'
+pushd /lib/firmware/brcm/ > /dev/null
+ln -s ./brcmfmac43455-sdio.raspberrypi,4-model-b.txt ./brcmfmac43455-sdio.raspberrypi,4-compute-module.txt
+popd > /dev/null
+
 status_stage3 'Copy script for handling wpa_supplicant file'
 install -m755 /bsp/scripts/copy-user-wpasupplicant.sh /usr/bin/
 
