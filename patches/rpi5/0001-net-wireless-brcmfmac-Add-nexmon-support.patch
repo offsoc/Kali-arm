@@ -1,6 +1,6 @@
-From 9e7196f03f6de276dc86115dc83de66bc2da2514 Mon Sep 17 00:00:00 2001
+From ac71b7c7329cb32d2c1f143b73de3113523f62a1 Mon Sep 17 00:00:00 2001
 From: DrSchottky <6048264+DrSchottky@users.noreply.github.com>
-Date: Fri, 10 Nov 2023 19:31:26 -0600
+Date: Tue, 30 Jul 2024 12:15:40 -0500
 Subject: [PATCH] net: wireless: brcmfmac: Add nexmon support.
 
 This adds the brcmfmac driver patched for nexmon firmware usage to the
@@ -39,7 +39,7 @@ This adds the brcmfmac driver patched for nexmon firmware usage to the
  .../wireless/broadcom/brcm80211/brcmfmac/of.c |  72 ++-
  .../wireless/broadcom/brcm80211/brcmfmac/of.h |   7 +
  .../broadcom/brcm80211/brcmfmac/p2p.c         |  20 +-
- .../broadcom/brcm80211/brcmfmac/pcie.c        | 480 ++----------------
+ .../broadcom/brcm80211/brcmfmac/pcie.c        | 475 ++----------------
  .../broadcom/brcm80211/brcmfmac/pno.c         |  12 +-
  .../broadcom/brcm80211/brcmfmac/sdio.c        | 108 ++--
  .../broadcom/brcm80211/brcmfmac/sdio.h        |  20 +-
@@ -47,7 +47,7 @@ This adds the brcmfmac driver patched for nexmon firmware usage to the
  .../broadcom/brcm80211/brcmfmac/usb.c         |  28 +-
  .../broadcom/brcm80211/brcmfmac/xtlv.c        |   1 -
  .../broadcom/brcm80211/brcmfmac/xtlv.h        |   2 +-
- 41 files changed, 1874 insertions(+), 1095 deletions(-)
+ 41 files changed, 1874 insertions(+), 1090 deletions(-)
  create mode 100644 drivers/net/wireless/broadcom/brcm80211/brcmfmac/include/brcm_hw_ids.h
  create mode 100644 drivers/net/wireless/broadcom/brcm80211/brcmfmac/include/brcmu_d11.h
  create mode 100644 drivers/net/wireless/broadcom/brcm80211/brcmfmac/include/brcmu_utils.h
@@ -468,7 +468,7 @@ index 2208ab3aa795..ba3c58caac9f 100644
  
  static inline
 diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-index e0f97cf6d273..15146979e59b 100644
+index 3d25aea61960..d64b293e85cb 100644
 --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
 +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
 @@ -5,6 +5,8 @@
@@ -682,7 +682,7 @@ index e0f97cf6d273..15146979e59b 100644
  static void brcmf_scan_config_mpc(struct brcmf_if *ifp, int mpc)
  {
  	if (brcmf_feat_is_quirk_enabled(ifp, BRCMF_FEAT_QUIRK_NEED_MPC))
-@@ -916,7 +944,6 @@ int brcmf_cfg80211_del_iface(struct wiphy *wiphy, struct wireless_dev *wdev)
+@@ -915,7 +943,6 @@ int brcmf_cfg80211_del_iface(struct wiphy *wiphy, struct wireless_dev *wdev)
  	case NL80211_IFTYPE_MESH_POINT:
  		return -EOPNOTSUPP;
  	case NL80211_IFTYPE_MONITOR:
@@ -690,7 +690,7 @@ index e0f97cf6d273..15146979e59b 100644
  	case NL80211_IFTYPE_AP:
  		return brcmf_cfg80211_del_ap_iface(wiphy, wdev);
  	case NL80211_IFTYPE_P2P_CLIENT:
-@@ -983,6 +1010,10 @@ brcmf_cfg80211_change_iface(struct wiphy *wiphy, struct net_device *ndev,
+@@ -982,6 +1009,10 @@ brcmf_cfg80211_change_iface(struct wiphy *wiphy, struct net_device *ndev,
  	}
  	switch (type) {
  	case NL80211_IFTYPE_MONITOR:
@@ -701,7 +701,7 @@ index e0f97cf6d273..15146979e59b 100644
  	case NL80211_IFTYPE_WDS:
  		bphy_err(drvr, "type (%d) : currently we do not support this type\n",
  			 type);
-@@ -1352,14 +1383,13 @@ static int brcmf_set_pmk(struct brcmf_if *ifp, const u8 *pmk_data, u16 pmk_len)
+@@ -1351,14 +1382,13 @@ static int brcmf_set_pmk(struct brcmf_if *ifp, const u8 *pmk_data, u16 pmk_len)
  {
  	struct brcmf_pub *drvr = ifp->drvr;
  	struct brcmf_wsec_pmk_le pmk;
@@ -722,7 +722,7 @@ index e0f97cf6d273..15146979e59b 100644
  
  	/* store psk in firmware */
  	err = brcmf_fil_cmd_data_set(ifp, BRCMF_C_SET_WSEC_PMK,
-@@ -1789,8 +1819,8 @@ brcmf_set_key_mgmt(struct net_device *ndev, struct cfg80211_connect_params *sme)
+@@ -1788,8 +1818,8 @@ brcmf_set_key_mgmt(struct net_device *ndev, struct cfg80211_connect_params *sme)
  			val = WPA_AUTH_PSK;
  			break;
  		default:
@@ -733,7 +733,7 @@ index e0f97cf6d273..15146979e59b 100644
  			return -EINVAL;
  		}
  	} else if (val & (WPA2_AUTH_PSK | WPA2_AUTH_UNSPECIFIED)) {
-@@ -1822,8 +1852,8 @@ brcmf_set_key_mgmt(struct net_device *ndev, struct cfg80211_connect_params *sme)
+@@ -1821,8 +1851,8 @@ brcmf_set_key_mgmt(struct net_device *ndev, struct cfg80211_connect_params *sme)
  			profile->is_ft = true;
  			break;
  		default:
@@ -744,7 +744,7 @@ index e0f97cf6d273..15146979e59b 100644
  			return -EINVAL;
  		}
  	} else if (val & WPA3_AUTH_SAE_PSK) {
-@@ -1844,8 +1874,8 @@ brcmf_set_key_mgmt(struct net_device *ndev, struct cfg80211_connect_params *sme)
+@@ -1843,8 +1873,8 @@ brcmf_set_key_mgmt(struct net_device *ndev, struct cfg80211_connect_params *sme)
  			}
  			break;
  		default:
@@ -755,7 +755,7 @@ index e0f97cf6d273..15146979e59b 100644
  			return -EINVAL;
  		}
  	}
-@@ -2172,7 +2202,7 @@ brcmf_cfg80211_connect(struct wiphy *wiphy, struct net_device *ndev,
+@@ -2171,7 +2201,7 @@ brcmf_cfg80211_connect(struct wiphy *wiphy, struct net_device *ndev,
  		offsetof(struct brcmf_assoc_params_le, chanspec_list);
  	if (cfg->channel)
  		join_params_size += sizeof(u16);
@@ -764,7 +764,7 @@ index e0f97cf6d273..15146979e59b 100644
  	if (ext_join_params == NULL) {
  		err = -ENOMEM;
  		goto done;
-@@ -2401,8 +2431,7 @@ brcmf_cfg80211_config_default_key(struct wiphy *wiphy, struct net_device *ndev,
+@@ -2400,8 +2430,7 @@ brcmf_cfg80211_config_default_key(struct wiphy *wiphy, struct net_device *ndev,
  
  static s32
  brcmf_cfg80211_del_key(struct wiphy *wiphy, struct net_device *ndev,
@@ -774,7 +774,7 @@ index e0f97cf6d273..15146979e59b 100644
  {
  	struct brcmf_if *ifp = netdev_priv(ndev);
  	struct brcmf_wsec_key *key;
-@@ -2439,8 +2468,8 @@ brcmf_cfg80211_del_key(struct wiphy *wiphy, struct net_device *ndev,
+@@ -2438,8 +2467,8 @@ brcmf_cfg80211_del_key(struct wiphy *wiphy, struct net_device *ndev,
  
  static s32
  brcmf_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
@@ -785,7 +785,7 @@ index e0f97cf6d273..15146979e59b 100644
  {
  	struct brcmf_cfg80211_info *cfg = wiphy_to_cfg(wiphy);
  	struct brcmf_if *ifp = netdev_priv(ndev);
-@@ -2465,7 +2494,7 @@ brcmf_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
+@@ -2464,7 +2493,7 @@ brcmf_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
  
  	if (params->key_len == 0)
  		return brcmf_cfg80211_del_key(wiphy, ndev, -1, key_idx,
@@ -794,7 +794,7 @@ index e0f97cf6d273..15146979e59b 100644
  
  	if (params->key_len > sizeof(key->data)) {
  		bphy_err(drvr, "Too long key length (%u)\n", params->key_len);
-@@ -2561,8 +2590,8 @@ brcmf_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
+@@ -2560,8 +2589,8 @@ brcmf_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
  
  static s32
  brcmf_cfg80211_get_key(struct wiphy *wiphy, struct net_device *ndev,
@@ -805,7 +805,7 @@ index e0f97cf6d273..15146979e59b 100644
  		       void (*callback)(void *cookie,
  					struct key_params *params))
  {
-@@ -2619,7 +2648,7 @@ brcmf_cfg80211_get_key(struct wiphy *wiphy, struct net_device *ndev,
+@@ -2618,7 +2647,7 @@ brcmf_cfg80211_get_key(struct wiphy *wiphy, struct net_device *ndev,
  static s32
  brcmf_cfg80211_config_default_mgmt_key(struct wiphy *wiphy,
  				       struct net_device *ndev, int link_id,
@@ -814,7 +814,7 @@ index e0f97cf6d273..15146979e59b 100644
  {
  	struct brcmf_if *ifp = netdev_priv(ndev);
  
-@@ -3170,7 +3199,10 @@ static s32 brcmf_update_bss_info(struct brcmf_cfg80211_info *cfg,
+@@ -3169,7 +3198,10 @@ static s32 brcmf_update_bss_info(struct brcmf_cfg80211_info *cfg,
  				 struct brcmf_if *ifp)
  {
  	struct brcmf_pub *drvr = cfg->pub;
@@ -826,7 +826,7 @@ index e0f97cf6d273..15146979e59b 100644
  	s32 err = 0;
  
  	brcmf_dbg(TRACE, "Enter\n");
-@@ -3184,8 +3216,29 @@ static s32 brcmf_update_bss_info(struct brcmf_cfg80211_info *cfg,
+@@ -3183,8 +3215,29 @@ static s32 brcmf_update_bss_info(struct brcmf_cfg80211_info *cfg,
  		bphy_err(drvr, "Could not get bss info %d\n", err);
  		goto update_bss_info_out;
  	}
@@ -856,7 +856,7 @@ index e0f97cf6d273..15146979e59b 100644
  
  update_bss_info_out:
  	brcmf_dbg(TRACE, "Exit");
-@@ -3888,24 +3941,6 @@ static void brcmf_configure_wowl(struct brcmf_cfg80211_info *cfg,
+@@ -3887,24 +3940,6 @@ static void brcmf_configure_wowl(struct brcmf_cfg80211_info *cfg,
  	cfg->wowl.active = true;
  }
  
@@ -881,7 +881,7 @@ index e0f97cf6d273..15146979e59b 100644
  static s32 brcmf_cfg80211_suspend(struct wiphy *wiphy,
  				  struct cfg80211_wowlan *wowl)
  {
-@@ -3952,9 +3987,6 @@ static s32 brcmf_cfg80211_suspend(struct wiphy *wiphy,
+@@ -3951,9 +3986,6 @@ static s32 brcmf_cfg80211_suspend(struct wiphy *wiphy,
  	} else {
  		/* Configure WOWL paramaters */
  		brcmf_configure_wowl(cfg, ifp, wowl);
@@ -891,7 +891,7 @@ index e0f97cf6d273..15146979e59b 100644
  	}
  
  exit:
-@@ -3970,6 +4002,7 @@ brcmf_update_pmklist(struct brcmf_cfg80211_info *cfg, struct brcmf_if *ifp)
+@@ -3969,6 +4001,7 @@ brcmf_update_pmklist(struct brcmf_cfg80211_info *cfg, struct brcmf_if *ifp)
  	struct brcmf_pmk_list_le *pmk_list;
  	int i;
  	u32 npmk;
@@ -899,7 +899,7 @@ index e0f97cf6d273..15146979e59b 100644
  
  	pmk_list = &cfg->pmk_list;
  	npmk = le32_to_cpu(pmk_list->npmk);
-@@ -3978,8 +4011,10 @@ brcmf_update_pmklist(struct brcmf_cfg80211_info *cfg, struct brcmf_if *ifp)
+@@ -3977,8 +4010,10 @@ brcmf_update_pmklist(struct brcmf_cfg80211_info *cfg, struct brcmf_if *ifp)
  	for (i = 0; i < npmk; i++)
  		brcmf_dbg(CONN, "PMK[%d]: %pM\n", i, &pmk_list->pmk[i].bssid);
  
@@ -912,7 +912,7 @@ index e0f97cf6d273..15146979e59b 100644
  }
  
  static s32
-@@ -4606,7 +4641,7 @@ s32 brcmf_vif_set_mgmt_ie(struct brcmf_cfg80211_vif *vif, s32 pktflag,
+@@ -4605,7 +4640,7 @@ s32 brcmf_vif_set_mgmt_ie(struct brcmf_cfg80211_vif *vif, s32 pktflag,
  
  s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
  {
@@ -921,7 +921,7 @@ index e0f97cf6d273..15146979e59b 100644
  		BRCMF_VNDR_IE_PRBREQ_FLAG,
  		BRCMF_VNDR_IE_PRBRSP_FLAG,
  		BRCMF_VNDR_IE_BEACON_FLAG
-@@ -4949,7 +4984,7 @@ brcmf_cfg80211_start_ap(struct wiphy *wiphy, struct net_device *ndev,
+@@ -4948,7 +4983,7 @@ brcmf_cfg80211_start_ap(struct wiphy *wiphy, struct net_device *ndev,
  }
  
  static int brcmf_cfg80211_stop_ap(struct wiphy *wiphy, struct net_device *ndev,
@@ -930,7 +930,7 @@ index e0f97cf6d273..15146979e59b 100644
  {
  	struct brcmf_cfg80211_info *cfg = wiphy_to_cfg(wiphy);
  	struct brcmf_if *ifp = netdev_priv(ndev);
-@@ -5025,10 +5060,13 @@ brcmf_cfg80211_change_beacon(struct wiphy *wiphy, struct net_device *ndev,
+@@ -5024,10 +5059,13 @@ brcmf_cfg80211_change_beacon(struct wiphy *wiphy, struct net_device *ndev,
  			     struct cfg80211_beacon_data *info)
  {
  	struct brcmf_if *ifp = netdev_priv(ndev);
@@ -945,7 +945,7 @@ index e0f97cf6d273..15146979e59b 100644
  }
  
  static int
-@@ -5283,7 +5321,7 @@ brcmf_cfg80211_cancel_remain_on_channel(struct wiphy *wiphy,
+@@ -5282,7 +5320,7 @@ brcmf_cfg80211_cancel_remain_on_channel(struct wiphy *wiphy,
  
  static int brcmf_cfg80211_get_channel(struct wiphy *wiphy,
  				      struct wireless_dev *wdev,
@@ -954,7 +954,7 @@ index e0f97cf6d273..15146979e59b 100644
  				      struct cfg80211_chan_def *chandef)
  {
  	struct brcmf_cfg80211_info *cfg = wiphy_to_cfg(wiphy);
-@@ -5573,6 +5611,9 @@ static struct cfg80211_ops brcmf_cfg80211_ops = {
+@@ -5572,6 +5610,9 @@ static struct cfg80211_ops brcmf_cfg80211_ops = {
  	.crit_proto_start = brcmf_cfg80211_crit_proto_start,
  	.crit_proto_stop = brcmf_cfg80211_crit_proto_stop,
  	.tdls_oper = brcmf_cfg80211_tdls_oper,
@@ -964,7 +964,7 @@ index e0f97cf6d273..15146979e59b 100644
  	.update_connect_params = brcmf_cfg80211_update_conn_params,
  	.set_pmk = brcmf_cfg80211_set_pmk,
  	.del_pmk = brcmf_cfg80211_del_pmk,
-@@ -5891,11 +5932,6 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
+@@ -5890,11 +5931,6 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
  		(struct brcmf_cfg80211_assoc_ielen_le *)cfg->extra_buf;
  	req_len = le32_to_cpu(assoc_info->req_len);
  	resp_len = le32_to_cpu(assoc_info->resp_len);
@@ -976,7 +976,7 @@ index e0f97cf6d273..15146979e59b 100644
  	if (req_len) {
  		err = brcmf_fil_iovar_data_get(ifp, "assoc_req_ies",
  					       cfg->extra_buf,
-@@ -6213,20 +6249,18 @@ static s32 brcmf_notify_rssi(struct brcmf_if *ifp,
+@@ -6212,20 +6248,18 @@ static s32 brcmf_notify_rssi(struct brcmf_if *ifp,
  {
  	struct brcmf_cfg80211_vif *vif = ifp->vif;
  	struct brcmf_rssi_be *info = data;
@@ -1003,7 +1003,7 @@ index e0f97cf6d273..15146979e59b 100644
  	low = vif->cqm_rssi_low;
  	high = vif->cqm_rssi_high;
  	last = vif->cqm_rssi_last;
-@@ -6418,7 +6452,6 @@ static void wl_deinit_priv(struct brcmf_cfg80211_info *cfg)
+@@ -6417,7 +6451,6 @@ static void wl_deinit_priv(struct brcmf_cfg80211_info *cfg)
  	cfg->dongle_up = false;	/* dongle down */
  	brcmf_abort_scanning(cfg);
  	brcmf_deinit_priv_mem(cfg);
@@ -1011,7 +1011,7 @@ index e0f97cf6d273..15146979e59b 100644
  }
  
  static void init_vif_event(struct brcmf_cfg80211_vif_event *event)
-@@ -6569,13 +6602,6 @@ static int brcmf_construct_chaninfo(struct brcmf_cfg80211_info *cfg,
+@@ -6568,13 +6601,6 @@ static int brcmf_construct_chaninfo(struct brcmf_cfg80211_info *cfg,
  			band->channels[i].flags = IEEE80211_CHAN_DISABLED;
  
  	total = le32_to_cpu(list->count);
@@ -1025,7 +1025,7 @@ index e0f97cf6d273..15146979e59b 100644
  	for (i = 0; i < total; i++) {
  		ch.chspec = (u16)le32_to_cpu(list->element[i]);
  		cfg->d11inf.decchspec(&ch);
-@@ -6721,13 +6747,6 @@ static int brcmf_enable_bw40_2g(struct brcmf_cfg80211_info *cfg)
+@@ -6720,13 +6746,6 @@ static int brcmf_enable_bw40_2g(struct brcmf_cfg80211_info *cfg)
  		band = cfg_to_wiphy(cfg)->bands[NL80211_BAND_2GHZ];
  		list = (struct brcmf_chanspec_list *)pbuf;
  		num_chan = le32_to_cpu(list->count);
@@ -1039,7 +1039,7 @@ index e0f97cf6d273..15146979e59b 100644
  		for (i = 0; i < num_chan; i++) {
  			ch.chspec = (u16)le32_to_cpu(list->element[i]);
  			cfg->d11inf.decchspec(&ch);
-@@ -7017,7 +7036,13 @@ static int brcmf_setup_ifmodes(struct wiphy *wiphy, struct brcmf_if *ifp)
+@@ -7016,7 +7035,13 @@ static int brcmf_setup_ifmodes(struct wiphy *wiphy, struct brcmf_if *ifp)
  	bool mon_flag, mbss, p2p, rsdb, mchan;
  	int i, c, n_combos, n_limits;
  
@@ -1053,7 +1053,7 @@ index e0f97cf6d273..15146979e59b 100644
  	mbss = brcmf_feat_is_enabled(ifp, BRCMF_FEAT_MBSS);
  	p2p = brcmf_feat_is_enabled(ifp, BRCMF_FEAT_P2P);
  	rsdb = brcmf_feat_is_enabled(ifp, BRCMF_FEAT_RSDB);
-@@ -7481,21 +7506,6 @@ int brcmf_cfg80211_wait_vif_event(struct brcmf_cfg80211_info *cfg,
+@@ -7480,21 +7505,6 @@ int brcmf_cfg80211_wait_vif_event(struct brcmf_cfg80211_info *cfg,
  				  vif_event_equals(event, action), timeout);
  }
  
@@ -1075,7 +1075,7 @@ index e0f97cf6d273..15146979e59b 100644
  static s32 brcmf_translate_country_code(struct brcmf_pub *drvr, char alpha2[2],
  					struct brcmf_fil_country_le *ccreq)
  {
-@@ -7512,18 +7522,13 @@ static s32 brcmf_translate_country_code(struct brcmf_pub *drvr, char alpha2[2],
+@@ -7511,18 +7521,13 @@ static s32 brcmf_translate_country_code(struct brcmf_pub *drvr, char alpha2[2],
  
  	country_codes = drvr->settings->country_codes;
  	if (!country_codes) {
@@ -1605,7 +1605,7 @@ index 175272c2694d..93b9c9f8a64e 100644
  	brcmf_usb_exit();
  	brcmf_pcie_exit();
 diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
-index 86ff174936a9..0af452dca766 100644
+index c3a602197662..82ebf7393535 100644
 --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
 +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
 @@ -24,13 +24,6 @@ static const struct brcmf_dmi_data acepc_t8_data = {
@@ -1622,7 +1622,7 @@ index 86ff174936a9..0af452dca766 100644
  static const struct brcmf_dmi_data gpd_win_pocket_data = {
  	BRCM_CC_4356_CHIP_ID, 2, "gpd-win-pocket"
  };
-@@ -82,17 +75,6 @@ static const struct dmi_system_id dmi_platform_data[] = {
+@@ -91,17 +84,6 @@ static const struct dmi_system_id dmi_platform_data[] = {
  		},
  		.driver_data = (void *)&acepc_t8_data,
  	},
@@ -3835,7 +3835,7 @@ index 10d9d9c63b28..5fd2cfabab09 100644
  			break;
  		default:
 diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-index 3b1277a8bd61..d9c45c4d525c 100644
+index 99cc41135473..d28f3556a1be 100644
 --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
 +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
 @@ -13,7 +13,6 @@
@@ -4202,20 +4202,18 @@ index 3b1277a8bd61..d9c45c4d525c 100644
 -#define BRCMF_RANDOM_SEED_MAGIC		0xfeedc0de
 -#define BRCMF_RANDOM_SEED_LENGTH	0x100
  
- static int brcmf_pcie_download_fw_nvram(struct brcmf_pciedev_info *devinfo,
- 					const struct firmware *fw, void *nvram,
-@@ -1675,30 +1565,6 @@ static int brcmf_pcie_download_fw_nvram(struct brcmf_pciedev_info *devinfo,
- 			  nvram_len;
+ static noinline_for_stack void
+ brcmf_pcie_provide_random_bytes(struct brcmf_pciedev_info *devinfo, u32 address)
+@@ -1685,25 +1575,6 @@ static int brcmf_pcie_download_fw_nvram(struct brcmf_pciedev_info *devinfo,
  		memcpy_toio(devinfo->tcm + address, nvram, nvram_len);
  		brcmf_fw_nvram_free(nvram);
--
+ 
 -		if (devinfo->otp.valid) {
 -			size_t rand_len = BRCMF_RANDOM_SEED_LENGTH;
 -			struct brcmf_random_seed_footer footer = {
 -				.length = cpu_to_le32(rand_len),
 -				.magic = cpu_to_le32(BRCMF_RANDOM_SEED_MAGIC),
 -			};
--			void *randbuf;
 -
 -			/* Some Apple chips/firmwares expect a buffer of random
 -			 * data to be present before NVRAM
@@ -4227,15 +4225,12 @@ index 3b1277a8bd61..d9c45c4d525c 100644
 -				    sizeof(footer));
 -
 -			address -= rand_len;
--			randbuf = kzalloc(rand_len, GFP_KERNEL);
--			get_random_bytes(randbuf, rand_len);
--			memcpy_toio(devinfo->tcm + address, randbuf, rand_len);
--			kfree(randbuf);
+-			brcmf_pcie_provide_random_bytes(devinfo, address);
 -		}
  	} else {
  		brcmf_dbg(PCIE, "No matching NVRAM file found %s\n",
  			  devinfo->nvram_name);
-@@ -1834,22 +1700,15 @@ static int brcmf_pcie_buscoreprep(void *ctx)
+@@ -1839,22 +1710,15 @@ static int brcmf_pcie_buscoreprep(void *ctx)
  static int brcmf_pcie_buscore_reset(void *ctx, struct brcmf_chip *chip)
  {
  	struct brcmf_pciedev_info *devinfo = (struct brcmf_pciedev_info *)ctx;
@@ -4262,7 +4257,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  
  	return 0;
  }
-@@ -1872,206 +1731,8 @@ static const struct brcmf_buscore_ops brcmf_pcie_buscore_ops = {
+@@ -1877,206 +1741,8 @@ static const struct brcmf_buscore_ops brcmf_pcie_buscore_ops = {
  	.write32 = brcmf_pcie_buscore_write32,
  };
  
@@ -4469,7 +4464,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  
  static void brcmf_pcie_setup(struct device *dev, int ret,
  			     struct brcmf_fw_request *fwreq)
-@@ -2096,7 +1757,6 @@ static void brcmf_pcie_setup(struct device *dev, int ret,
+@@ -2101,7 +1767,6 @@ static void brcmf_pcie_setup(struct device *dev, int ret,
  	fw = fwreq->items[BRCMF_PCIE_FW_CODE].binary;
  	nvram = fwreq->items[BRCMF_PCIE_FW_NVRAM].nv_data.data;
  	nvram_len = fwreq->items[BRCMF_PCIE_FW_NVRAM].nv_data.len;
@@ -4477,7 +4472,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  	kfree(fwreq);
  
  	ret = brcmf_chip_get_raminfo(devinfo->ci);
-@@ -2172,7 +1832,6 @@ brcmf_pcie_prepare_fw_request(struct brcmf_pciedev_info *devinfo)
+@@ -2177,7 +1842,6 @@ brcmf_pcie_prepare_fw_request(struct brcmf_pciedev_info *devinfo)
  	struct brcmf_fw_name fwnames[] = {
  		{ ".bin", devinfo->fw_name },
  		{ ".txt", devinfo->nvram_name },
@@ -4485,7 +4480,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  	};
  
  	fwreq = brcmf_fw_alloc_request(devinfo->ci->chip, devinfo->ci->chiprev,
-@@ -2185,51 +1844,11 @@ brcmf_pcie_prepare_fw_request(struct brcmf_pciedev_info *devinfo)
+@@ -2190,51 +1854,11 @@ brcmf_pcie_prepare_fw_request(struct brcmf_pciedev_info *devinfo)
  	fwreq->items[BRCMF_PCIE_FW_CODE].type = BRCMF_FW_TYPE_BINARY;
  	fwreq->items[BRCMF_PCIE_FW_NVRAM].type = BRCMF_FW_TYPE_NVRAM;
  	fwreq->items[BRCMF_PCIE_FW_NVRAM].flags = BRCMF_FW_REQF_OPTIONAL;
@@ -4538,7 +4533,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  	return fwreq;
  }
  
-@@ -2240,7 +1859,6 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -2245,7 +1869,6 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  	struct brcmf_fw_request *fwreq;
  	struct brcmf_pciedev_info *devinfo;
  	struct brcmf_pciedev *pcie_bus_dev;
@@ -4546,7 +4541,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  	struct brcmf_bus *bus;
  
  	brcmf_dbg(PCIE, "Enter %x:%x\n", pdev->vendor, pdev->device);
-@@ -2260,12 +1878,6 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -2265,12 +1888,6 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  		goto fail;
  	}
  
@@ -4559,7 +4554,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  	pcie_bus_dev = kzalloc(sizeof(*pcie_bus_dev), GFP_KERNEL);
  	if (pcie_bus_dev == NULL) {
  		ret = -ENOMEM;
-@@ -2308,12 +1920,6 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -2313,12 +1930,6 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  	if (ret)
  		goto fail_bus;
  
@@ -4572,7 +4567,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  	fwreq = brcmf_pcie_prepare_fw_request(devinfo);
  	if (!fwreq) {
  		ret = -ENOMEM;
-@@ -2358,7 +1964,6 @@ brcmf_pcie_remove(struct pci_dev *pdev)
+@@ -2363,7 +1974,6 @@ brcmf_pcie_remove(struct pci_dev *pdev)
  		return;
  
  	devinfo = bus->bus_priv.pcie->devinfo;
@@ -4580,7 +4575,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  
  	devinfo->state = BRCMFMAC_PCIE_STATE_DOWN;
  	if (devinfo->ci)
-@@ -2377,7 +1982,6 @@ brcmf_pcie_remove(struct pci_dev *pdev)
+@@ -2382,7 +1992,6 @@ brcmf_pcie_remove(struct pci_dev *pdev)
  	brcmf_pcie_release_ringbuffers(devinfo);
  	brcmf_pcie_reset_device(devinfo);
  	brcmf_pcie_release_resource(devinfo);
@@ -4588,7 +4583,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  
  	if (devinfo->ci)
  		brcmf_chip_detach(devinfo->ci);
-@@ -2435,7 +2039,7 @@ static int brcmf_pcie_pm_leave_D3(struct device *dev)
+@@ -2440,7 +2049,7 @@ static int brcmf_pcie_pm_leave_D3(struct device *dev)
  	brcmf_dbg(PCIE, "Enter, dev=%p, bus=%p\n", dev, bus);
  
  	/* Check if device is still up and running, if so we are ready */
@@ -4597,7 +4592,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  		brcmf_dbg(PCIE, "Try to wakeup device....\n");
  		if (brcmf_pcie_send_mb_data(devinfo, BRCMF_H2D_HOST_D0_INFORM))
  			goto cleanup;
-@@ -2486,7 +2090,6 @@ static const struct pci_device_id brcmf_pcie_devid_table[] = {
+@@ -2491,7 +2100,6 @@ static const struct pci_device_id brcmf_pcie_devid_table[] = {
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_4356_DEVICE_ID),
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_43567_DEVICE_ID),
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_43570_DEVICE_ID),
@@ -4605,7 +4600,7 @@ index 3b1277a8bd61..d9c45c4d525c 100644
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_4358_DEVICE_ID),
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_4359_DEVICE_ID),
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_43602_DEVICE_ID),
-@@ -2502,9 +2105,6 @@ static const struct pci_device_id brcmf_pcie_devid_table[] = {
+@@ -2507,9 +2115,6 @@ static const struct pci_device_id brcmf_pcie_devid_table[] = {
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_4366_2G_DEVICE_ID),
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_4366_5G_DEVICE_ID),
  	BRCMF_PCIE_DEVICE(BRCM_PCIE_4371_DEVICE_ID),
@@ -5074,5 +5069,5 @@ index b2c7ae8966a1..e1930ce1b642 100644
  
  enum brcmf_xtlv_option {
 -- 
-2.42.0
+2.43.0
 
