@@ -70,10 +70,11 @@ git clone --quiet --depth 1 https://github.com/raspberrypi/firmware.git "${work_
 cp -rf "${work_dir}"/rpi-firmware/boot/* "${work_dir}"/boot/
 
 status 'Clone and build kernel'
-git clone --quiet --depth 1 https://github.com/raspberrypi/linux -b rpi-6.1.y "${work_dir}"/usr/src/kernel
+git clone --quiet --depth 1 https://github.com/raspberrypi/linux -b rpi-6.6.y "${work_dir}"/usr/src/kernel
 cd "${work_dir}"/usr/src/kernel
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-6.1.patch
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0001-net-wireless-brcmfmac-Add-nexmon-support.patch
+patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-6.6.patch
+#patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0001-net-wireless-brcmfmac-Add-nexmon-support.patch
+patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0002-brcmfmac-Drop-spamming-power-save-message.patch
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc)
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_install INSTALL_MOD_PATH="${work_dir}"
@@ -90,9 +91,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
 kernver=$(ls "${work_dir}"/lib/modules/)
 cd "${work_dir}"/lib/modules/"${kernver}"
 rm build
-rm source
 ln -s /usr/src/kernel build
-ln -s /usr/src/kernel source
 cd "${repo_dir}"
 
 # Firmware needed for the wifi
