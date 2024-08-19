@@ -84,6 +84,11 @@ if [ "${desktop}" != "none" ]; then
 status_stage3 'Install desktop packages'
 eatmydata apt-get install -y ${desktop_pkgs} ${extra}
 
+# In case any other terminals are installed, set x-t-e to qterminal as that is
+# our default terminal.
+status_stage3 'Set default terminal via update-alternatives'
+update-alternatives --verbose --set x-terminal-emulator /usr/bin/qterminal || true
+
 if [ -e /etc/lightdm/lightdm.conf ]; then
 status_stage3 'Set logind check graphical to false'
 sed -i -e 's/^#logind-check-graphical=true/logind-check-graphical=false/' /etc/lightdm/lightdm.conf
