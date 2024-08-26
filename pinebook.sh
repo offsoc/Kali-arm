@@ -33,8 +33,18 @@ cat <<EOF >>"${work_dir}"/third-stage
 status_stage3 'Copy rpi services'
 cp -p /bsp/services/rpi/*.service /etc/systemd/system/
 
+status_stage3 'Install 6.1.0 kernel and hold it.'
+cd /root
+wget https://old.kali.org/kali/pool/main/l/linux/linux-image-6.1.0-kali9-arm64_6.1.27-1kali1_arm64.deb
+wget https://old.kali.org/kali/pool/main/l/linux/linux-headers-6.1.0-kali9-arm64_6.1.27-1kali1_arm64.deb
+wget https://old.kali.org/kali/pool/main/l/linux/linux-kbuild-6.1_6.1.27-1kali1_arm64.deb
+wget https://old.kali.org/kali/pool/main/l/linux/linux-headers-6.1.0-kali9-common_6.1.27-1kali1_all.deb
+eatmydata apt-get install -y ./linux-image-6.1.0-kali9-arm64_6.1.27-1kali1_arm64.deb ./linux-headers-6.1.0-kali9-arm64_6.1.27-1kali1_arm64.deb ./linux-kbuild-6.1_6.1.27-1kali1_arm64.deb ./linux-headers-6.1.0-kali9-common_6.1.27-1kali1_all.deb
+apt-mark hold linux-headers-6.1.0-kali9-arm64
+apt-mark hold linux-image-6.1.0-kali9-arm64
+
 status_stage3 'Install the kernel packages'
-eatmydata apt-get install -y dkms kali-sbc-allwinner linux-headers-arm64 linux-image-arm64
+eatmydata apt-get install -y dkms kali-sbc-allwinner
 
 # Note: This just creates an empty /boot/extlinux/extlinux.conf for us to use
 # later.
