@@ -52,7 +52,7 @@ include third_stage
 include clean_system
 
 status 'Kernel compile'
-git clone https://github.com/beagleboard/linux -b 4.14 --depth 1 ${work_dir}/usr/src/kernel
+git clone https://github.com/beagleboard/linux -b 5.10 --depth 1 ${work_dir}/usr/src/kernel
 cd ${work_dir}/usr/src/kernel
 git rev-parse HEAD >${work_dir}/usr/src/kernel-at-commit
 export ARCH=arm
@@ -60,8 +60,8 @@ export ARCH=arm
 # Edit the CROSS_COMPILE variable as needed
 export CROSS_COMPILE=arm-linux-gnueabihf-
 touch .scmversion
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-4.14.patch
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/0001-wireless-carl9170-Enable-sniffer-mode-promisc-flag-t.patch
+# patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-4.14.patch
+# patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/0001-wireless-carl9170-Enable-sniffer-mode-promisc-flag-t.patch
 make bb.org_defconfig
 make -j $(grep -c processor /proc/cpuinfo)
 cp arch/arm/boot/zImage ${work_dir}/boot/zImage
