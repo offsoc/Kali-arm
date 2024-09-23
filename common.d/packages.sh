@@ -5,7 +5,7 @@ log "Selecting packages..." gray
 debootstrap_base="kali-archive-keyring,eatmydata,usrmerge"
 
 # This is the bare minimum if you want to start from very scratch
-minimal_pkgs="ca-certificates haveged iw network-manager parted polkitd-pkla \
+minimal_pkgs="ca-certificates haveged iw network-manager parted \
 sudo wpasupplicant"
 
 # This is the list of minimal common packages
