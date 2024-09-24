@@ -176,7 +176,7 @@ include third_stage
 
 ## Fix the the infamous “Authentication Required to Create Managed Color Device” in vnc
 status 'Fix VNC'
-cat <<EOF >${work_dir}/etc/polkit-1//45-allow-colord.rules
+cat <<EOF >${work_dir}/etc/polkit-1/rules.d/45-allow-colord.rules
 polkit.addRule(function(action, subject) {
     if ((action.id == "org.freedesktop.color-manager.create-device" ||
          action.id == "org.freedesktop.color-manager.create-profile" ||
