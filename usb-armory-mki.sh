@@ -28,9 +28,6 @@ cat <<EOF >>"${work_dir}"/third-stage
 status_stage3 'Install dhcp and vnc servers'
 eatmydata apt-get install -y isc-dhcp-server tightvncserver || eatmydata apt-get --yes --fix-broken install
 
-status_stage3 'Allow users to use NetworkManager over ssh'
-install -m644 /bsp/polkit/10-NetworkManager.pkla /var/lib/polkit-1/localauthority/50-local.d
-
 status_stage3 'Remove /etc/modules*'
 rm /etc/modules
 rm /etc/modules-load.d/modules.conf

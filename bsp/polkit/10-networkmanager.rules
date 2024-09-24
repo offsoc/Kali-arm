@@ -1,0 +1,10 @@
+// Polkit rule to allow users to run NetworkManager
+
+polkit.addRule(function(action, subject) {
+    if (action.startsWith("org.freedesktop.NetworkManager.") &&
+        (subject.isInGroup("netdev") ||
+         subject.isInGroup("sudo")))
+    {
+        return polkit.Result.YES;
+    }
+});

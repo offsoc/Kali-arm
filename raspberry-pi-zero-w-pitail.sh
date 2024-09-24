@@ -176,14 +176,25 @@ include third_stage
 
 ## Fix the the infamous “Authentication Required to Create Managed Color Device” in vnc
 status 'Fix VNC'
-mkdir -p ${work_dir}/etc/polkit-1/localauthority/50-local.d/
-cat <<EOF >${work_dir}/etc/polkit-1/localauthority/50-local.d/45-allow-colord.pkla
-[Allow Colord all Users]
-    Identity=unix-user:*
-    Action=org.freedesktop.color-manager.create-device;org.freedesktop.color-manager.create-profile;org.freedesktop.color-manager.delete-device;org.freedesktop.color-manager.delete-profile;org.freedesktop.color-manager.modify-device;org.freedesktop.color-manager.modify-profile
-    ResultAny=no
-    ResultInactive=no
-    ResultActive=yes
+cat <<EOF >${work_dir}/etc/polkit-1//45-allow-colord.rules
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.freedesktop.color-manager.create-device" ||
+         action.id == "org.freedesktop.color-manager.create-profile" ||
+         action.id == "org.freedesktop.color-manager.delete-device" ||
+         action.id == "org.freedesktop.color-manager.delete-profile" ||
+         action.id == "org.freedesktop.color-manager.modify-device" ||
+         action.id == "org.freedesktop.color-manager.modify-profile") &&
+        subject.user == "*")
+    {
+        if (subject.active && subject.local) {
+            return polkit.Result.YES;
+        }
+        if (subject.inactive && subject.local) {
+            return polkit.Result.NO;
+        }
+        return polkit.Result.NO;
+    }
+});
 EOF
 
 status 'Always put our favourite adapter as wlan1'
