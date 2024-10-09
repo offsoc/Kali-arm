@@ -5,15 +5,14 @@ log "Selecting packages..." gray
 debootstrap_base="kali-archive-keyring,eatmydata,usrmerge"
 
 # This is the bare minimum if you want to start from very scratch
-minimal_pkgs="ca-certificates haveged iw network-manager parted \
+minimal_pkgs="ca-certificates cloud-init haveged iw network-manager parted \
 sudo wpasupplicant"
 
 # This is the list of minimal common packages
 common_min_pkgs="$minimal_pkgs apt-transport-https command-not-found \
-fontconfig ifupdown kali-defaults kali-tweaks man-db net-tools \
-netcat-traditional pciutils plocate psmisc rfkill screen snmp snmpd tftp-hpa tmux unrar \
-usbutils vim wireless-regdb zerofree zsh zsh-autosuggestions \
-zsh-syntax-highlighting"
+fontconfig ifupdown kali-defaults kali-tweaks man-db net-tools netcat-traditional \
+pciutils plocate psmisc rfkill screen snmp snmpd ssh-import-id tftp-hpa tmux unrar \
+usbutils vim wireless-regdb zerofree zsh zsh-autosuggestions zsh-syntax-highlighting"
 
 # This is the list of common packages
 common_pkgs="$minimal_pkgs apt-transport-https dialog \
