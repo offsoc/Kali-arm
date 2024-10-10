@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# NetHunter ~ https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project/-/blob/2e26ee29/nethunter-installer/prep-release.py
+# NetHunter ~ https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/blob/712c9266/prep-release.py
 # ARM Devices ~ https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
 
 ###############################################
