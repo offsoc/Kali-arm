@@ -22,8 +22,8 @@ linting:
   stage: linting
   allow_failure: yes
   rules:
-    - if: $CI_MERGE_REQUEST_ID             # Execute jobs in merge request context
-    - if: $CI_COMMIT_BRANCH == 'master'    # Execute jobs when a new commit is pushed to master branch
+    - if: $CI_MERGE_REQUEST_ID                       # Execute jobs in merge request context
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH    # Execute jobs when a new commit is pushed to default branch
   before_script:
     - *install_prerequesites_pip
   script:
@@ -32,7 +32,7 @@ linting:
 pages:
   stage: generate_documentation
   rules:
-    - if: $CI_COMMIT_BRANCH == 'master'    # Execute jobs when a new commit is pushed to master branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH    # Execute jobs when a new commit is pushed to default branch
   before_script:
     - *install_prerequesites_pip
     - *setup_for_html

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# ARM Devices ~ https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
+# ARM Devices ~ https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml
 
 ###############################################
 # Script to prepare the rpi-imager json script for Kali ARM quarterly releases.
@@ -52,7 +52,7 @@ file_ext = [
 # Input:
 # ------------------------------------------------------------
 # See: ./devices.yml
-# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
+# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml
 #
 # See:  ./images/*.img.sha256sum (uncompressed image sha256sum - to get the sha256sum
 #       ./images/*.img.xz.sha256sum (compressed image sha256sum - to get the sha256sum
