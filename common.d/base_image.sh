@@ -94,7 +94,6 @@ status_stage3 'Set logind check graphical to false'
 sed -i -e 's/^#logind-check-graphical=true/logind-check-graphical=false/' /etc/lightdm/lightdm.conf
 fi
 EOF
-
 fi
 
 cat <<EOF >>"${work_dir}/third-stage"
@@ -129,6 +128,7 @@ status_stage3 'Enable SSH service'
 systemctl enable ssh
 
 status_stage3 'Allow users to use NetworkManager'
+mkdir -p /etc/polkit-1/rules.d/
 install -m644 /bsp/polkit/10-networkmanager.rules /etc/polkit-1/rules.d/
 
 status_stage3 'Copy script growpart'
