@@ -55,6 +55,17 @@ echo "T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100" >> /etc/inittab
 
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
+
+status_stage3 'Set up cloud-init'
+install -m644 /bsp/cloudinit/user-data /boot/
+install -m644 /bsp/cloudinit/meta-data /boot/
+install -m644 /bsp/cloudinit/cloud.cfg /etc/cloud/
+mkdir -p /var/lib/cloud/seed/nocloud-net
+ln -s /boot/user-data /var/lib/cloud/seed/nocloud-net/user-data
+ln -s /boot/meta-data /var/lib/cloud/seed/nocloud-net/meta-data
+ln -s /boot/network-config /var/lib/cloud/seed/nocloud-net/network-config
+systemctl enable cloud-init-hotplugd.socket
+systemctl enable cloud-init-main.service
 EOF
 
 # Run third stage
@@ -83,6 +94,8 @@ make_fstab
 
 # Configure Raspberry Pi firmware (set config.txt to 64-bit)
 include rpi_firmware
+
+sed -i -e 's/net.ifnames=0/net.ifnames=0 ds=nocloud/' "${work_dir}"/boot/cmdline.txt
 
 # Create the dirs for the partitions and mount them
 status "Create the dirs for the partitions and mount them"

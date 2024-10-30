@@ -59,6 +59,17 @@ apt-get install -y cmake device-tree-compiler libfdt-dev build-essential
 cmake .
 make
 make install
+
+status_stage3 'Set up cloud-init'
+install -m644 /bsp/cloudinit/user-data /boot/
+install -m644 /bsp/cloudinit/meta-data /boot/
+install -m644 /bsp/cloudinit/cloud.cfg /etc/cloud/
+mkdir -p /var/lib/cloud/seed/nocloud-net
+ln -s /boot/user-data /var/lib/cloud/seed/nocloud-net/user-data
+ln -s /boot/meta-data /var/lib/cloud/seed/nocloud-net/meta-data
+ln -s /boot/network-config /var/lib/cloud/seed/nocloud-net/network-config
+systemctl enable cloud-init-hotplugd.socket
+systemctl enable cloud-init-main.service
 EOF
 
 # Run third stage
@@ -72,9 +83,11 @@ cp -rf "${work_dir}"/rpi-firmware/boot/* "${work_dir}"/boot/
 status 'Clone and build kernel'
 git clone --quiet --depth 1 https://github.com/raspberrypi/linux -b rpi-6.6.y "${work_dir}"/usr/src/kernel
 cd "${work_dir}"/usr/src/kernel
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-6.6.patch
+git config user.email "kali-builder@kali.org"
+git config user.name "Kali Builder"
+#git am ${repo_dir}/patches/kali-wifi-injection-6.6.patch
 #patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0001-net-wireless-brcmfmac-Add-nexmon-support.patch
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0002-brcmfmac-Drop-spamming-power-save-message.patch
+#git am ${repo_dir}/patches/rpi5/0002-brcmfmac-Drop-spamming-power-save-message.patch
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc)
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_install INSTALL_MOD_PATH="${work_dir}"
@@ -137,6 +150,7 @@ include rpi_firmware
 sed -i -e '79 i [pi5]' "${work_dir}"/boot/config.txt
 sed -i -e '80 i kernel=kernel8.img' "${work_dir}"/boot/config.txt
 
+sed -i -e 's/net.ifnames=0/net.ifnames=0 ds=nocloud/' "${work_dir}"/boot/cmdline.txt
 
 # Create the dirs for the partitions and mount them
 status "Create the dirs for the partitions and mount them"
