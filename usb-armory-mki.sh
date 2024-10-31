@@ -173,8 +173,8 @@ sync
 
 status "u-Boot"
 cd "${base_dir}"
-wget ftp://ftp.denx.de/pub/u-boot/u-boot-2023.07.tar.bz2
-tar xvf u-boot-2023.07.tar.bz2 && cd u-boot-2023.07
+wget ftp://ftp.denx.de/pub/u-boot/u-boot-2024.10.tar.bz2
+tar xvf u-boot-2024.10.tar.bz2 && cd u-boot-2024.10
 wget $githubraw/usbarmory/usbarmory/master/software/u-boot/0001-Fix-microSD-detection-for-USB-armory-Mk-I.patch
 patch -p1 --no-backup-if-mismatch <0001-Fix-microSD-detection-for-USB-armory-Mk-I.patch
 make distclean
