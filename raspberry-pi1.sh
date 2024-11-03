@@ -60,6 +60,8 @@ status_stage3 'Set up cloud-init'
 install -m644 /bsp/cloudinit/user-data /boot/
 install -m644 /bsp/cloudinit/meta-data /boot/
 install -m644 /bsp/cloudinit/cloud.cfg /etc/cloud/
+# This snippet overrides config which sets the default user so punt it.
+rm /etc/cloud/cloud.cfg.d/20_kali.cfg
 mkdir -p /var/lib/cloud/seed/nocloud-net
 ln -s /boot/user-data /var/lib/cloud/seed/nocloud-net/user-data
 ln -s /boot/meta-data /var/lib/cloud/seed/nocloud-net/meta-data
