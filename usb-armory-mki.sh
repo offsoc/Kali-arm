@@ -173,6 +173,7 @@ sync
 
 status "u-Boot"
 cd "${base_dir}"
+apt-get install -y -q uuid-dev
 wget ftp://ftp.denx.de/pub/u-boot/u-boot-2024.10.tar.bz2
 tar xvf u-boot-2024.10.tar.bz2 && cd u-boot-2024.10
 wget $githubraw/usbarmory/usbarmory/master/software/u-boot/0001-Fix-microSD-detection-for-USB-armory-Mk-I.patch
