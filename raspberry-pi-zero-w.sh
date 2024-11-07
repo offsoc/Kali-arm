@@ -72,6 +72,10 @@ ln -s /boot/meta-data /var/lib/cloud/seed/nocloud-net/meta-data
 ln -s /boot/network-config /var/lib/cloud/seed/nocloud-net/network-config
 systemctl enable cloud-init-hotplugd.socket
 systemctl enable cloud-init-main.service
+# Attempt to work around a bug where the network-config filename is written
+# incorrectly if the file does not exit previously
+# https://github.com/raspberrypi/rpi-imager/issues/945
+touch /boot/network-config
 EOF
 
 # Run third stage
