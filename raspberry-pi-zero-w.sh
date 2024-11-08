@@ -77,7 +77,7 @@ systemctl enable cloud-init-main.service
 # https://github.com/raspberrypi/rpi-imager/issues/945
 touch /boot/network-config
 # HACK: Make sure /boot is also mounted before cloud-init-local starts
-sed -i -e 's|RequireMountsFor=.*|RequireMountsFor=/var/lib/cloud /boot|' /usr/lib/systemd/system/cloud-init-local.service
+sed -i -e 's|RequiresMountsFor=.*|RequiresMountsFor=/var/lib/cloud /boot|' /usr/lib/systemd/system/cloud-init-local.service
 EOF
 
 # Run third stage
