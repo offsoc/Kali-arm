@@ -29,12 +29,12 @@ else
 fi
 
 # Create or modify group kali.
-if ! getent group 'kali'; then
+if ! getent passwd 1000; then
+  if ! getent group 'kali'; then
     groupadd -g 1000 kali || true
-
-else
+  else
     groupmod -g 1000 kali || true
-
+  fi
 fi
 
 # Default groups.
@@ -51,7 +51,7 @@ for g in $app_groups; do
 done
 
 # Add the kali user and give them all the access they need.
-if ! getent passwd 'kali'; then
+if ! getent passwd 1000; then
     if [ $(arch) == 'armv6l' ]; then
         adduser --gecos "" --uid 1000 --gid 1000 --shell /usr/bin/bash --disabled-password kali
 
