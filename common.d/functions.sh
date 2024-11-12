@@ -35,7 +35,7 @@ function log() {
         echo -e "[i] $1"
 
     else
-        echo -e "$color[i] $1${colour_reset}"
+        echo -e "${color[i]} $1${colour_reset}"
 
     fi
 }
@@ -438,25 +438,27 @@ function print_config() {
 function make_image() {
     # Calculate the space to create the image.
     root_size=$(du -s -B1 "${work_dir}" --exclude="${work_dir}"/boot | cut -f1)
-    root_extra=$((root_size * 5 * 1024 / 5 / 1024 / 1000))
-    raw_size=$(($((free_space * 1024)) + root_extra + $((bootsize * 1024)) + 4096))
-    img_size=$(echo "${raw_size}"Ki | numfmt --from=iec-i --to=si)
+    root_extra=$((root_size / 1000))
+    raw_size=$(( (root_size / 1024) + (free_space * 1024) + (root_extra / 1024)  + (bootsize * 1024) + 4))
+    padding=$(( (512 - (raw_size % 512)) % 512 ))
+    padded_size=$(( raw_size + padding ))
+    img_size=$(echo "${padded_size}"Ki | numfmt --from=iec-i --to=si)
 
     # Create the disk image
     log "Creating image file:${colour_reset} ${image_name}.img (Size: ${img_size})" white
-    [ -d ${image_dir} ] || mkdir -p "${image_dir}/"
-    fallocate -l "${img_size}" "${image_dir}/${image_name}.img"
+    [ -d "${image_dir}" ] || mkdir -p "${image_dir}/"
+    fallocate -l "${padded_size}"K "${image_dir}/${image_name}.img"
 }
 
 # Set the partition variables
 function make_loop() {
     img="${image_dir}/${image_name}.img"
-    num_parts=$(fdisk -l $img | grep "${img}[1-2]" | wc -l)
+    num_parts=$(fdisk -l "$img" | grep -c "${img}[1-2]")
 
     if [ "$num_parts" = "2" ]; then
         extra=1
-        part_type1=$(fdisk -l $img | grep ${img}1 | awk '{print $6}')
-        part_type2=$(fdisk -l $img | grep ${img}2 | awk '{print $6}')
+        part_type1=$(fdisk -l "$img" | grep "${img}"1 | awk '{print $6}')
+        part_type2=$(fdisk -l "$img" | grep "${img}"2 | awk '{print $6}')
 
         if [[ "$part_type1" == "c" ]]; then
             bootfstype="vfat"
@@ -472,7 +474,7 @@ function make_loop() {
         rootp="${loopdevice}p2"
 
     elif [ "$num_parts" = "1" ]; then
-        part_type1=$(fdisk -l $img | grep ${img}1 | awk '{print $6}')
+        part_type1=$(fdisk -l "$img" | grep "${img}"1 | awk '{print $6}')
 
         if [[ "$part_type1" == "83" ]]; then
             rootfstype=${rootfstype:-"$fstype"}
@@ -521,7 +523,7 @@ function mkfs_partitions() {
                 mkfs.vfat -n BOOT -F 32 "${bootp}" ;;
 
             ext4)
-                features="^64bit,^metadata_csum"; 
+                features="^64bit,^metadata_csum";
                 mkfs -O "$features" -t "$fstype" -L BOOT "${bootp}" ;;
 
             ext2 | ext3)

@@ -59,6 +59,25 @@ update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
 status_stage3 'Enable hciuart and bluetooth'
 systemctl enable hciuart
 systemctl enable bluetooth
+
+status_stage3 'Set up cloud-init'
+install -m644 /bsp/cloudinit/user-data /boot/
+install -m644 /bsp/cloudinit/meta-data /boot/
+install -m644 /bsp/cloudinit/cloud.cfg /etc/cloud/
+# This snippet overrides config which sets the default user so punt it.
+rm /etc/cloud/cloud.cfg.d/20_kali.cfg
+mkdir -p /var/lib/cloud/seed/nocloud-net
+ln -s /boot/user-data /var/lib/cloud/seed/nocloud-net/user-data
+ln -s /boot/meta-data /var/lib/cloud/seed/nocloud-net/meta-data
+ln -s /boot/network-config /var/lib/cloud/seed/nocloud-net/network-config
+systemctl enable cloud-init-hotplugd.socket
+systemctl enable cloud-init-main.service
+# Attempt to work around a bug where the network-config filename is written
+# incorrectly if the file does not exit previously
+# https://github.com/raspberrypi/rpi-imager/issues/945
+touch /boot/network-config
+# HACK: Make sure /boot is also mounted before cloud-init-local starts
+sed -i -e 's|RequiresMountsFor=.*|RequiresMountsFor=/var/lib/cloud /boot|' /usr/lib/systemd/system/cloud-init-local.service
 EOF
 
 # Run third stage
@@ -87,6 +106,8 @@ make_fstab
 
 # Configure Raspberry Pi firmware
 include rpi_firmware
+
+sed -i -e 's/net.ifnames=0/net.ifnames=0 ds=nocloud/' "${work_dir}"/boot/cmdline.txt
 
 # Create the dirs for the partitions and mount them
 status "Create the dirs for the partitions and mount them"
