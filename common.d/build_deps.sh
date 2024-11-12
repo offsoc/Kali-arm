@@ -126,8 +126,8 @@ compilers="crossbuild-essential-arm64 crossbuild-essential-armhf crossbuild-esse
 dependencies="arch-test autoconf automake bc bison build-essential cgpt cgroup-tools cmake curl dbus \
 debootstrap device-tree-compiler dosfstools e2fsprogs eatmydata flex gawk git gnupg kpartx           \
 libncurses-dev lsb-release libssl-dev lsof lzma lzop m4 make mmdebstrap parted pixz pkg-config       \
-python3-dev qemu-user-static rsync swig systemd-container u-boot-tools vboot-kernel-utils vboot-utils"
-
+python3-dev qemu-user-static rsync swig systemd-container u-boot-tools vboot-kernel-utils vboot-utils \
+libgnutls28-dev uuid-dev"
 deps="${dependencies} ${compilers}"
 
 # Update list deb packages
