@@ -175,8 +175,6 @@ sync
 
 status "u-Boot"
 cd "${work_dir}"
-# Need uuid.h to compile newer u-boot
-sudo apt-get install -y -qq uuid-dev
 wget ftp://ftp.denx.de/pub/u-boot/u-boot-2024.10.tar.bz2
 tar xvf u-boot-2024.10.tar.bz2 && cd u-boot-2024.10
 wget $githubraw/usbarmory/usbarmory/master/software/u-boot/0001-ARM-mx6-add-support-for-USB-armory-Mk-II-board.patch
