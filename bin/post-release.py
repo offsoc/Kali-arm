@@ -150,7 +150,7 @@ def jsonarray(devices, vendor, name, url, extract_size, extract_sha256, image_do
         "image_download_size": image_download_size,
         "image_download_sha256": image_download_sha256,
         "devices": device_arch,
-        "init_format": "systemd",
+        "init_format": "cloudinit",
     }
 
     devices[vendor].append(jsondata)
