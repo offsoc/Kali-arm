@@ -75,6 +75,8 @@ systemctl enable cloud-init-main.service
 touch /boot/network-config
 # HACK: Make sure /boot is also mounted before cloud-init-local starts
 sed -i -e 's|RequiresMountsFor=.*|RequiresMountsFor=/var/lib/cloud /boot|' /usr/lib/systemd/system/cloud-init-local.service
+# HACK: Disable rpi-resizerootfs service
+systemctl disable rpi-resizerootfs.service
 EOF
 
 # Run third stage
