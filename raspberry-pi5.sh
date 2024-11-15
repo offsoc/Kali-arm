@@ -78,6 +78,8 @@ systemctl enable cloud-init-main.service
 touch /boot/network-config
 # HACK: Make sure /boot is also mounted before cloud-init-local starts
 sed -i -e 's|RequiresMountsFor=.*|RequiresMountsFor=/var/lib/cloud /boot|' /usr/lib/systemd/system/cloud-init-local.service
+# HACK: Disable rpi-resizerootfs service
+systemctl disable rpi-resizerootfs.service
 EOF
 
 # Run third stage
@@ -156,7 +158,10 @@ make_fstab
 include rpi_firmware
 # We need to add in a directive so that the Pi5 knows which kernel to use.
 sed -i -e '79 i [pi5]' "${work_dir}"/boot/config.txt
-sed -i -e '80 i kernel=kernel8.img' "${work_dir}"/boot/config.txt
+sed -i -e '80 i # Enable DRM VC4 V3D driver on top of the dispmanx display stack' "${work_dir}"/boot/config.txt
+sed -i -e '81 i dtoverlay=vc4-kms-v3d' "${work_dir}"/boot/config.txt
+sed -i -e '82 i max_framebuffers=2' "${work_dir}"/boot/config.txt
+sed -i -e '83 i kernel=kernel8.img' "${work_dir}"/boot/config.txt
 
 sed -i -e 's/net.ifnames=0/net.ifnames=0 ds=nocloud/' "${work_dir}"/boot/cmdline.txt
 
