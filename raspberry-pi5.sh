@@ -89,6 +89,7 @@ include third_stage
 status 'Clone bootloader'
 git clone --quiet --depth 1 https://github.com/raspberrypi/firmware.git "${work_dir}"/rpi-firmware
 cp -rf "${work_dir}"/rpi-firmware/boot/* "${work_dir}"/boot/
+rm -rf "${work_dir}"/rpi-firmware
 
 status 'Clone and build kernel'
 git clone --quiet --depth 1 https://github.com/raspberrypi/linux -b rpi-6.6.y "${work_dir}"/usr/src/kernel
