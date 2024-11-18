@@ -76,6 +76,8 @@ touch /boot/network-config
 sed -i -e 's|RequiresMountsFor=.*|RequiresMountsFor=/var/lib/cloud /boot|' /usr/lib/systemd/system/cloud-init-local.service
 # HACK: Disable rpi-resizerootfs service
 systemctl disable rpi-resizerootfs.service
+# New service to attempt to fix up the rpi-imager hardcoding
+systemctl enable rpi-imager-fixup.service
 EOF
 
 # Run third stage
