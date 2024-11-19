@@ -161,10 +161,15 @@ make_fstab
 include rpi_firmware
 # We need to add in a directive so that the Pi5 knows which kernel to use.
 sed -i -e '79 i [pi5]' "${work_dir}"/boot/config.txt
-sed -i -e '80 i # Enable DRM VC4 V3D driver on top of the dispmanx display stack' "${work_dir}"/boot/config.txt
-sed -i -e '81 i dtoverlay=vc4-kms-v3d' "${work_dir}"/boot/config.txt
-sed -i -e '82 i max_framebuffers=2' "${work_dir}"/boot/config.txt
-sed -i -e '83 i kernel=kernel8.img' "${work_dir}"/boot/config.txt
+sed -i -e '80 i # Automatically load overlays for detected cameras' "${work_dir}"/boot/config.txt
+sed -i -e '81 i camera_auto_detect=1' "${work_dir}"/boot/config.txt
+sed -i -e '82 i # Automatically load overlays for detected DSI displays' "${work_dir}"/boot/config.txt
+sed -i -e '83 i display_auto_detect=1' "${work_dir}"/boot/config.txt
+sed -i -e '84 i disable_fw_ksm_setup=1' "${work_dir}"/boot/config.txt
+sed -i -e '85 i # Enable DRM VC4 V3D driver on top of the dispmanx display stack' "${work_dir}"/boot/config.txt
+sed -i -e '86 i dtoverlay=vc4-kms-v3d' "${work_dir}"/boot/config.txt
+sed -i -e '87 i max_framebuffers=2' "${work_dir}"/boot/config.txt
+sed -i -e '88 i kernel=kernel8.img' "${work_dir}"/boot/config.txt
 
 sed -i -e 's/net.ifnames=0/net.ifnames=0 ds=nocloud/' "${work_dir}"/boot/cmdline.txt
 
