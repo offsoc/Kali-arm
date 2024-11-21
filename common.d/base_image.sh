@@ -163,9 +163,10 @@ if [[ ${architecture} != armel ]]; then
 
 fi
 
-#status_stage3 'Try and make the console a bit nicer. Set the terminus font for a bit nicer display'
-#sed -i -e 's/FONTFACE=.*/FONTFACE="Terminus"/' /etc/default/console-setup
-#sed -i -e 's/FONTSIZE=.*/FONTSIZE="6x12"/' /etc/default/console-setup
+status_stage3 'Try and make the console a bit nicer. Set the terminus font for a bit nicer display'
+sed -i -e 's/CHARMAP=.*/CHARMAP="UTF-8"/' /etc/default/console-setup
+sed -i -e 's/FONTFACE=.*/FONTFACE="Terminus"/' /etc/default/console-setup
+sed -i -e 's/FONTSIZE=.*/FONTSIZE="6x12"/' /etc/default/console-setup
 
 status_stage3 'Fix startup time from 5 minutes to 15 secs on raise interface'
 sed -i 's/^TimeoutStartSec=5min/TimeoutStartSec=15/g' "/usr/lib/systemd/system/networking.service"
