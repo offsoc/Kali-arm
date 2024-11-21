@@ -460,7 +460,11 @@ function ensure_loopdevice() {
     for attempt in $(seq 1 "$retry_attempts"); do
         loopdev=$(losetup --show -fP "$img_file")
         if [ -b "${loopdev}" ]; then
-            log "Loop device is $loopdev" green
+            # The echo below is intentional and crucial. It ensures the function outputs
+            # the loop device path (e.g., /dev/loop0) as its return value.
+            # Do NOT remove or replace it with a log statement, as other parts of the script
+            # rely on this output to use the loop device.
+            echo ${loopdev}
             return 0
         fi
         log "Retrying to set up loop device (attempt $attempt)..."
