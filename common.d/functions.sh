@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 # shellcheck disable=SC2154
 
@@ -450,6 +451,25 @@ function make_image() {
     fallocate -l "${padded_size}"K "${image_dir}/${image_name}.img"
 }
 
+# Make sure that the loopdevice is available.
+function ensure_loopdevice() {
+    local img_file="$1"
+    local loopdev
+    local retry_attempts=5  # Number of retry attempts
+    local retry_interval=1  # Time in seconds between retries
+    for attempt in $(seq 1 "$retry_attempts"); do
+        loopdev=$(losetup --show -fP "$img_file")
+        if [ -b "${loopdev}" ]; then
+            log "Loop device is $loopdev" green
+            return 0
+        fi
+        log "Retrying to set up loop device (attempt $attempt)..."
+        sleep "$retry_interval"
+    done
+    log "Failed to set up loop device for $img after $retry_attempts attempts."
+    return 1
+}
+
 # Set the partition variables
 function make_loop() {
     img="${image_dir}/${image_name}.img"
@@ -469,7 +489,7 @@ function make_loop() {
         fi
 
         rootfstype=${rootfstype:-"$fstype"}
-        loopdevice=$(losetup --show -fP "$img")
+        loopdevice=$(ensure_loopdevice "$img")
         bootp="${loopdevice}p1"
         rootp="${loopdevice}p2"
 
@@ -482,7 +502,7 @@ function make_loop() {
         fi
 
         rootfstype=${rootfstype:-"$fstype"}
-        loopdevice=$(losetup --show -fP "$img")
+        loopdevice=$(ensure_loopdevice "$img")
         rootp="${loopdevice}p1"
 
     fi
