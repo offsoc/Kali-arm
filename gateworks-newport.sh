@@ -113,7 +113,7 @@ mkdir -p "${image_dir}"
 wget http://dev.gateworks.com/newport/boot_firmware/firmware-newport.img -O "${image_dir}/${image_name}.img"
 fallocate -l $(echo ${raw_size}Ki | numfmt --from=iec-i --to=si) "${base_dir}/${image_name}.img"
 dd if="${base_dir}/${image_name}.img" of="${image_dir}/${image_name}.img" bs=16M seek=1
-echo ", +" | sfdisk -N 2 "${image_dir}/${image_name}.img"
+echo ", +" | sfdisk -N 2 "${image_dir}/${image_name}.img" > /dev/null 2>&1
 
 # Set the partition variables
 make_loop
@@ -139,6 +139,11 @@ fi
 status "Rsyncing rootfs into image file"
 rsync -HPavz -q ${work_dir}/ ${base_dir}/root/
 sync
+
+status "Make sure second partition is not marked as bootable"
+if fdisk -l "$img" | awk '/img2/ {print $2}' | grep -q '*' > /dev/null 2>&1 ; then
+    echo -e "a\n2\nw" | fdisk "$img" > /dev/null 2>&1
+fi
 
 # Load default finish_image configs
 include finish_image
