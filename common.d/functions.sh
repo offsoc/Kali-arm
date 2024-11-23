@@ -459,6 +459,8 @@ function ensure_loopdevice() {
     local retry_interval=1  # Time in seconds between retries
     for attempt in $(seq 1 "$retry_attempts"); do
         loopdev=$(losetup --show -fP "$img_file")
+        # Add a sleep to let the devices settle
+        sleep 3
         if [ -b "${loopdev}" ]; then
             # The echo below is intentional and crucial. It ensures the function outputs
             # the loop device path (e.g., /dev/loop0) as its return value.
