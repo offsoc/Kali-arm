@@ -40,10 +40,10 @@ suite=${suite:-"kali-rolling"}
 locale="en_US.UTF-8"
 
 # Free space rootfs in MiB
-free_space="300"
+free_space="${free_space:-300}"
 
 # /boot partition in MiB
-bootsize="256"
+bootsize="${bootsize:-256}"
 
 # Select compression, xz or none
 compress="xz"
