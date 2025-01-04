@@ -493,6 +493,14 @@ function make_loop() {
 
         fi
 
+        if [[ "$bootfstype" == "vfat" ]]; then
+            boot_uuid_n="$(cat < /proc/sys/kernel/random/uuid | cut -d- -f2-3)"
+            boot_uuid="$(echo "$boot_uuid_n" | tr '[:lower:]' '[:upper:]')"
+            boot_uuid_n="$(echo "$boot_uuid_n" | tr -d -)"
+        else
+            boot_uuid="$(cat < /proc/sys/kernel/random/uuid)"
+        fi
+
         rootfstype=${rootfstype:-"$fstype"}
         loopdevice=$(ensure_loopdevice "$img")
         bootp="${loopdevice}p1"
@@ -524,7 +532,7 @@ UUID=$root_uuid /               $rootfstype errors=remount-ro 0       1
 EOF
 
     if ! [ -z "$bootp" ]; then
-        echo "LABEL=BOOT      /boot           $bootfstype    defaults          0       2" >>"${work_dir}"/etc/fstab
+        echo "UUID=$boot_uuid      /boot           $bootfstype    defaults          0       2" >>"${work_dir}"/etc/fstab
 
     fi
 
@@ -545,15 +553,15 @@ function mkfs_partitions() {
     if [ -n "${bootp}" ]; then
         case $bootfstype in
             vfat)
-                mkfs.vfat -n BOOT -F 32 "${bootp}" ;;
+                mkfs.vfat -i "$boot_uuid_n" -n BOOT -F 32 "${bootp}" ;;
 
             ext4)
                 features="^64bit,^metadata_csum";
-                mkfs -O "$features" -t "$fstype" -L BOOT "${bootp}" ;;
+                mkfs -U "$boot_uuid" -O "$features" -t "$fstype" -L BOOT "${bootp}" ;;
 
             ext2 | ext3)
                 features="^64bit"
-                mkfs -O "$features" -t "$fstype" -L BOOT "${bootp}" ;;
+                mkfs -U "$boot_uuid" -O "$features" -t "$fstype" -L BOOT "${bootp}" ;;
 
         esac
 
