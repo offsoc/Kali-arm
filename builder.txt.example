@@ -8,7 +8,7 @@
 #locale="en_US.UTF-8"
 
 # Free space added to the rootfs in MiB
-#free_space="300"
+#free_space="1024"
 
 # /boot partition in MiB
 #bootsize="128"

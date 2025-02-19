@@ -40,7 +40,7 @@ suite=${suite:-"kali-rolling"}
 locale="en_US.UTF-8"
 
 # Free space rootfs in MiB
-free_space="${free_space:-300}"
+free_space="${free_space:-1024}"
 
 # /boot partition in MiB
 bootsize="${bootsize:-256}"
