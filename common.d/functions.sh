@@ -634,6 +634,10 @@ function umount_partitions() {
     [ -n "${bootp}" ] &&
         ! mountpoint -q "${base_dir}/root/boot" || umount -q "${base_dir}/root/boot" ||
         true
+    # Raspberry Pi mounts to /boot/firmware so check that too
+    [ -n "${bootp}" ] &&
+        ! mountpoint -q "${base_dir}/root/boot/firmware" || umount -q "${base_dir}/root/boot/firmware" ||
+        true
 
     ! mountpoint -q "${base_dir}/root" || umount -q "${base_dir}/root"
 }
