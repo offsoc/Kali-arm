@@ -252,6 +252,9 @@ mkfs_partitions
 # Make fstab
 make_fstab
 
+# RaspberryPi devices mount the first partition on /boot/firmware
+sed -i -e 's|/boot|/boot/firmware|' "${work_dir}"/etc/fstab
+
 # Configure Raspberry Pi firmware
 #include rpi_firmware
 
