@@ -25,6 +25,7 @@ basic_network
 
 # Download Pi-Tail files
 status "Download Pi-Tail files"
+mkdir -p ${work_dir}/boot/firmware
 git clone --depth 1 https://github.com/re4son/Kali-Pi ${work_dir}/opt/Kali-Pi
 wget -O ${work_dir}/etc/systemd/system/pi-tail.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tail.service
 wget -O ${work_dir}/etc/systemd/system/pi-tailbt.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.service
@@ -34,17 +35,17 @@ wget -O ${work_dir}/etc/systemd/network/pan0.network https://raw.githubuserconte
 wget -O ${work_dir}/etc/systemd/system/bt-agent.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-agent.service
 wget -O ${work_dir}/etc/systemd/system/bt-network.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-network.service
 wget -O ${work_dir}/lib/systemd/system/hciuart.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/hciuart.service
-wget -O ${work_dir}/boot/cmdline.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
-wget -O ${work_dir}/boot/cmdline.storage https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
-wget -O ${work_dir}/boot/cmdline.eth https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.eth
-wget -O ${work_dir}/boot/interfaces https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces
-wget -O ${work_dir}/boot/interfaces.example.wifi https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi
-wget -O ${work_dir}/boot/interfaces.example.wifi-AP https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi-AP
-wget -O ${work_dir}/boot/pi-tailbt.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.example
-wget -O ${work_dir}/boot/wpa_supplicant.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant.conf
-wget -O ${work_dir}/boot/Pi-Tail.README https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.README
-wget -O ${work_dir}/boot/Pi-Tail.HOWTO https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.HOWTO
-wget -O ${work_dir}/boot/config.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/config.txt
+wget -O ${work_dir}/boot/firmware/cmdline.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
+wget -O ${work_dir}/boot/firmware/cmdline.storage https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
+wget -O ${work_dir}/boot/firmware/cmdline.eth https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.eth
+wget -O ${work_dir}/boot/firmware/interfaces https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces
+wget -O ${work_dir}/boot/firmware/interfaces.example.wifi https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi
+wget -O ${work_dir}/boot/firmware/interfaces.example.wifi-AP https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi-AP
+wget -O ${work_dir}/boot/firmware/pi-tailbt.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.example
+wget -O ${work_dir}/boot/firmware/wpa_supplicant.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant.conf
+wget -O ${work_dir}/boot/firmware/Pi-Tail.README https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.README
+wget -O ${work_dir}/boot/firmware/Pi-Tail.HOWTO https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.HOWTO
+wget -O ${work_dir}/boot/firmware/config.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/config.txt
 wget -O ${work_dir}/etc/udev/rules.d/70-persistent-net.rules https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/70-persistent-net.rules
 wget -O ${work_dir}/opt/Kali-Pi/Menus/RAS-AP/dnsmasq-dhcpd.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/dnsmasq-dhcpd.conf
 wget -O ${work_dir}/opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/ras-ap.sh
@@ -56,6 +57,10 @@ chmod 0755 ${work_dir}/usr/local/bin/mon0up ${work_dir}/usr/local/bin/mon0down
 mkdir -p ${work_dir}/etc/skel/.vnc/
 wget -O ${work_dir}/etc/skel/.vnc/xstartup https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/vncservice/xstartup
 chmod 0750 ${work_dir}/etc/skel/.vnc/xstartup
+
+# Sed fixups for the above to point to /boot/firmware now that we use it
+sed -i -e "s|/boot/|/boot/firmware/|g" ${work_dir}/boot/firmware/Pi-Tail.HOWTO
+sed -i -e "s|/boot|/boot/firmware|g" ${work_dir}/etc/systemd/system/pi-tail.service
 
 # Third stage
 cat <<EOF >>"${work_dir}"/third-stage
@@ -85,11 +90,15 @@ status_stage3 'Script mode wlan monitor START/STOP'
 install -m755 /bsp/scripts/monstart /usr/bin/
 install -m755 /bsp/scripts/monstop /usr/bin/
 
-status_stage3 'Install the kernel packages'
-echo "deb http://http.re4son-kernel.com/re4son kali-pi main" > /etc/apt/sources.list.d/re4son.list
-wget -O /etc/apt/trusted.gpg.d/kali_pi-archive-keyring.gpg https://re4son-kernel.com/keys/http/kali_pi-archive-keyring.gpg
-eatmydata apt-get update
-eatmydata apt-get install -y ${re4son_pkgs}
+status_stage3 'Remove cloud-init'
+eatmydata apt-get -y -q purge --autoremove cloud-init
+
+status_stage3 'Install the kernel'
+if [[ "${architecture}" == "armhf" ]]; then
+eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-v7 linux-image-rpi-v7l linux-headers-rpi-v7 linux-headers-rpi-v7l brcmfmac-nexmon-dkms pi-bluetooth
+else
+eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-v6 linux-headers-rpi-v6 brcmfmac-nexmon-dkms pi-bluetooth
+fi
 
 status_stage3 'Copy script for handling wpa_supplicant file'
 install -m755 /bsp/scripts/copy-user-wpasupplicant.sh /usr/bin/
@@ -97,7 +106,7 @@ install -m755 /bsp/scripts/copy-user-wpasupplicant.sh /usr/bin/
 status_stage3 'Enable copying of user wpa_supplicant.conf file'
 systemctl enable copy-user-wpasupplicant
 
-status_stage3 'Enabling ssh by putting ssh or ssh.txt file in /boot'
+status_stage3 'Enabling ssh by putting ssh or ssh.txt file in /boot/firmware'
 systemctl enable enable-ssh
 
 status_stage3 'Disable haveged daemon'
@@ -169,6 +178,9 @@ update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
 #status_stage3 'Enable hciuart and bluetooth'
 #systemctl enable hciuart
 #systemctl enable bluetooth
+cp /bsp/firmware/rpi/config.txt /boot/firmware/config.txt
+echo -e "\ndtoverlay=dwc2" >> /boot/firmware/config.txt
+echo -e "DO NOT EDIT THIS FILE\n\nThe file you are looking for has moved to /boot/firmware/config.txt" > /boot/config.txt
 EOF
 
 # Run third stage
@@ -203,6 +215,22 @@ cat <<EOF >${work_dir}/etc/udev/rules.d/70-persistent-net.rules
 SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan1"
 EOF
 
+# Firmware needed for the wifi
+cd "${work_dir}"
+status 'Clone Wi-Fi/Bluetooth firmware'
+git clone --quiet --depth 1 https://github.com/rpi-distro/firmware-nonfree
+cd firmware-nonfree/debian/config/brcm80211
+rsync -HPaz brcm "${work_dir}"/lib/firmware/
+rsync -HPaz cypress "${work_dir}"/lib/firmware/
+cd "${work_dir}"/lib/firmware/cypress
+ln -sf cyfmac43455-sdio-standard.bin cyfmac43455-sdio.bin
+rm -rf "${work_dir}"/firmware-nonfree
+
+# bluetooth firmware
+wget -q 'https://github.com/RPi-Distro/bluez-firmware/raw/bookworm/debian/firmware/broadcom/BCM4345C0.hcd' -O "${work_dir}"/lib/firmware/brcm/BCM4345C0.hcd
+
+cd "${repo_dir}/"
+
 # Clean system
 include clean_system
 
@@ -224,6 +252,9 @@ mkfs_partitions
 # Make fstab
 make_fstab
 
+# RaspberryPi devices mount the first partition on /boot/firmware
+sed -i -e 's|/boot|/boot/firmware|' "${work_dir}"/etc/fstab
+
 # Configure Raspberry Pi firmware
 #include rpi_firmware
 
@@ -237,15 +268,15 @@ else
     mount "${rootp}" "${base_dir}"/root
 fi
 
-mkdir -p "${base_dir}"/root/boot
-mount "${bootp}" "${base_dir}"/root/boot
+mkdir -p "${base_dir}"/root/boot/firmware
+mount "${bootp}" "${base_dir}"/root/boot/firmware
 
 status "Rsyncing rootfs into image file"
-rsync -HPavz -q --exclude boot "${work_dir}"/ "${base_dir}"/root/
+rsync -HPavz -q --exclude boot/firmware "${work_dir}"/ "${base_dir}"/root/
 sync
 
-status "Rsyncing rootfs into image file (/boot)"
-rsync -rtx -q "${work_dir}"/boot "${base_dir}"/root
+status "Rsyncing rootfs into image file (/boot/firmware)"
+rsync -rtx -q "${work_dir}"/boot/firmware "${base_dir}"/root/boot
 sync
 
 # Load default finish_image configs

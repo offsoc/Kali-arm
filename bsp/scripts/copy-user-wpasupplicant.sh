@@ -1,20 +1,20 @@
 #!/bin/bash -e
 
 # If the file doesn't exist, exit 0 so that we don't report an error and systemd is happy.
-if [ ! -f /boot/wpa_supplicant.conf ]; then
+if [ ! -f /boot/firmware/wpa_supplicant.conf ]; then
     exit 0
 
 fi
 
-if [ -f /boot/wpa_supplicant.conf ]; then
-    ssid=$(awk -F = '{if($0 ~ /ssid/) print $2}' /boot/wpa_supplicant.conf | tr -d '"')
+if [ -f /boot/firmware/wpa_supplicant.conf ]; then
+    ssid=$(awk -F = '{if($0 ~ /ssid/) print $2}' /boot/firmware/wpa_supplicant.conf | tr -d '"')
 
     # look for the plaintext ASCII psk in the file as a comment.
-    psk=$(awk -F = '{if($0 ~ /#psk/) print $2}' /boot/wpa_supplicant.conf | tr -d '"')
+    psk=$(awk -F = '{if($0 ~ /#psk/) print $2}' /boot/firmware/wpa_supplicant.conf | tr -d '"')
 
     # If we did not find the plaintext psk in the comment use the psk as configured.
     if [ "${psk}" == "" ]; then
-        psk=$(awk -F = '{if($0 ~ /psk/) print $2}' /boot/wpa_supplicant.conf | tr -d '"')
+        psk=$(awk -F = '{if($0 ~ /psk/) print $2}' /boot/firmware/wpa_supplicant.conf | tr -d '"')
 
     fi
 
@@ -27,11 +27,11 @@ if [ -f /boot/wpa_supplicant.conf ]; then
                 ipv4.method auto
 
         else
-            install -m600 /boot/wpa_supplicant.conf /etc/wpa_supplicant
+            install -m600 /boot/firmware/wpa_supplicant.conf /etc/wpa_supplicant
 
         fi
 
-        mv /boot/wpa_supplicant.conf{,.bak}
+        mv /boot/firmware/wpa_supplicant.conf{,.bak}
 
     fi
 fi

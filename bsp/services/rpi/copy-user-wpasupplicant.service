@@ -1,6 +1,6 @@
 [Unit]
 Description=Copy user wpa_supplicant.conf
-ConditionPathExists=/boot/wpa_supplicant.conf
+ConditionPathExists=/boot/firmware/wpa_supplicant.conf
 After=network.target
 
 [Service]
