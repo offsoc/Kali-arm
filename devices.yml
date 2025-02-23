@@ -56,7 +56,7 @@ devices:
             slug: "raspberry-pi-2"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -67,7 +67,7 @@ devices:
             slug: "raspberry-pi-2"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
       - board: "rasbperry-pi-3"
@@ -94,7 +94,7 @@ devices:
             slug: "raspberry-pi-3"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -105,7 +105,7 @@ devices:
             slug: "raspberry-pi-3"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
       - board: "raspberry-pi-4"
@@ -133,7 +133,7 @@ devices:
             slug: "raspberry-pi-4"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -144,7 +144,7 @@ devices:
             slug: "raspberry-pi-400"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
       - board: "raspberry-pi-400"
@@ -171,7 +171,7 @@ devices:
             slug: "raspberry-pi-400"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -182,7 +182,7 @@ devices:
             slug: "raspberry-pi-400"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
       - board: "raspberry-pi-5"
@@ -236,7 +236,7 @@ devices:
             slug: "raspberry-pi"
             build-script: "raspberry-pi1.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
       - board: "raspberry-pi-zero-2-w"
@@ -263,7 +263,7 @@ devices:
             slug: "raspberry-pi-zero-2-w"
             build-script: "raspberry-pi-zero-2-w.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
           - image: "raspberry-pi-zero-2-w-pitail-armhf.img"
@@ -274,7 +274,7 @@ devices:
             slug: "raspberry-pi-zero-2-w-pi-tail"
             build-script: "raspberry-pi-zero-2-w-pitail.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
       - board: "raspberry-pi-zero-w"
@@ -301,7 +301,7 @@ devices:
             slug: "raspberry-pi-zero-w"
             build-script: "raspberry-pi-zero-w.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
           - image: "raspberry-pi-zero-w-pitail-armel.img"
@@ -312,7 +312,7 @@ devices:
             slug: "raspberry-pi-zero-w-pi-tail"
             build-script: "raspberry-pi-zero-w-pitail.sh"
             kernel: "custom"
-            kernel-version: "5.15.44"
+            kernel-version: "6.6.74"
             image-notes: ""
 
           - image: "raspberry-pi-zero-w-p4wnp1-aloa-armel.img"
@@ -381,7 +381,7 @@ devices:
             slug: "pinebook-pro"
             build-script: "pinebook-pro.sh"
             kernel: "kali"
-            kernel-version: "6.11.2"
+            kernel-version: "6.12.13"
             image-notes: ""
 
   - banana:
@@ -409,7 +409,7 @@ devices:
             slug: "banana-pi"
             build-script: "banana-pi.sh"
             kernel: "kali"
-            kernel-version: "6.11.2"
+            kernel-version: "6.12.13"
             image-notes: ""
 
       - board: "banana-pro"
@@ -436,7 +436,7 @@ devices:
             slug: "banana-pro"
             build-script: "banana-pro.sh"
             kernel: "kali"
-            kernel-version: "6.11.2"
+            kernel-version: "6.12.13"
             image-notes: ""
 
   - beagle:
@@ -657,7 +657,7 @@ devices:
             slug: "trimslice"
             build-script: "trimslice.sh"
             kernel: "kali"
-            kernel-version: "6.8.11-armhf"
+            kernel-version: "6.12.13-armhf"
             image-notes: ""
 
       - board: "utilite-pro"
@@ -796,7 +796,7 @@ devices:
             slug: "cubox-i4pro"
             build-script: "cubox-i4pro.sh"
             kernel: "kali"
-            kernel-version: "6.8.11-armhf"
+            kernel-version: "6.12.13-armhf"
             image-notes: ""
 
   - gateworks:
@@ -1039,7 +1039,7 @@ devices:
             slug: "nanopi-neo-plus2"
             build-script: "nanopi-neo-plus2.sh"
             kernel: "kali"
-            kernel-version: "6.8.11-arm64"
+            kernel-version: "6.12.13-arm64"
             image-notes: ""
 
       - board: "nanopi2"
@@ -1202,7 +1202,7 @@ devices:
             slug: "odroid-c2"
             build-script: "odroid-c2.sh"
             kernel: "kali"
-            kernel-version: "6.8.11-arm64"
+            kernel-version: "6.12.13-arm64"
             image-notes: ""
 
       - board: "odroid-u2"
@@ -1423,7 +1423,7 @@ devices:
             slug: "riotboard"
             build-script: "riotboard.sh"
             kernel: "kali"
-            kernel-version: "6.8.11-armhf"
+            kernel-version: "6.12.13-armhf"
             image-notes: ""
 
   - radxa:
