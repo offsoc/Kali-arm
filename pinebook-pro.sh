@@ -56,6 +56,9 @@ update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
 status_stage3 'Add in 43455 firmware for newer model Pinebook Pro'
 mkdir -p /lib/firmware/brcm/
 cp -a /bsp/firmware/pbp/* /lib/firmware/brcm/
+
+status_stage3 'Remove cloud-init where it is not used'
+eatmydata apt-get -y purge --autoremove cloud-init
 EOF
 
 # Run third stage
