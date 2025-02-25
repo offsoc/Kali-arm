@@ -630,16 +630,20 @@ function umount_partitions() {
     # Make sure we are somewhere we are not going to unmount
     cd "${repo_dir}/"
 
-    # If there is boot partition, unmount that first. Else continue as not every ARM device has one
-    [ -n "${bootp}" ] &&
-        ! mountpoint -q "${base_dir}/root/boot" || umount -q "${base_dir}/root/boot" ||
-        true
-    # Raspberry Pi mounts to /boot/firmware so check that too
-    [ -n "${bootp}" ] &&
-        ! mountpoint -q "${base_dir}/root/boot/firmware" || umount -q "${base_dir}/root/boot/firmware" ||
-        true
+    # Define possible boot mount points
+    boot_mounts=("${base_dir}/root/boot" "${base_dir}/root/boot/firmware")
 
-    ! mountpoint -q "${base_dir}/root" || umount -q "${base_dir}/root"
+    # Unmount boot partitions if they exist
+    for mount in "${boot_mounts[@]}"; do
+        if mountpoint -q "$mount"; then
+            umount -q "$mount"
+        fi
+    done
+
+    # Unmount root partition
+    if mountpoint -q "${base_dir}/root"; then
+        umount -q "${base_dir}/root"
+    fi
 }
 
 # Clean up all the temporary build stuff and remove the directories.
