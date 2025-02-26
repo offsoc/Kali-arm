@@ -93,6 +93,10 @@ sed -i -e 's|RequiresMountsFor=.*|RequiresMountsFor=/var/lib/cloud /boot/firmwar
 systemctl disable rpi-resizerootfs.service
 # New service to attempt to fix up the rpi-imager hardcoding
 systemctl enable rpi-imager-fixup.service
+
+status_stage3 'Copy xorg config snippet'
+mkdir -p /etc/X11/xorg.conf.d/
+install -m644 /bsp/xorg/99-vc4.conf /etc/X11/xorg.conf.d/
 EOF
 
 # Run third stage
