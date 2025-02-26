@@ -31,6 +31,15 @@ cp -p /bsp/services/rpi/*.service /etc/systemd/system/
 status_stage3 'Script mode wlan monitor START/STOP'
 install -m755 /bsp/scripts/{monstart,monstop} /usr/bin/
 
+status_stage3 'Build RaspberryPi utils'
+git clone --quiet https://github.com/raspberrypi/utils /usr/src/utils
+cd /usr/src/utils/
+# Without gcc/make, this will fail on slim images.
+apt-get install -y cmake device-tree-compiler libfdt-dev build-essential
+cmake .
+make
+make install
+
 status_stage3 'Install the kernel'
 if [[ "${architecture}" == "arm64" ]]; then
 eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-2712 linux-image-rpi-v8 linux-headers-rpi-2712 linux-headers-rpi-v8 brcmfmac-nexmon-dkms pi-bluetooth

@@ -93,6 +93,15 @@ install -m755 /bsp/scripts/monstop /usr/bin/
 status_stage3 'Remove cloud-init'
 eatmydata apt-get -y -q purge --autoremove cloud-init
 
+status_stage3 'Build RaspberryPi utils'
+git clone --quiet https://github.com/raspberrypi/utils /usr/src/utils
+cd /usr/src/utils/
+# Without gcc/make, this will fail on slim images.
+apt-get install -y cmake device-tree-compiler libfdt-dev build-essential
+cmake .
+make
+make install
+
 status_stage3 'Install the kernel'
 if [[ "${architecture}" == "armhf" ]]; then
 eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-v7 linux-image-rpi-v7l linux-headers-rpi-v7 linux-headers-rpi-v7l brcmfmac-nexmon-dkms pi-bluetooth

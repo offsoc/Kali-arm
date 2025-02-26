@@ -50,6 +50,15 @@ echo "T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100" >> /etc/inittab
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
 
+status_stage3 'Build RaspberryPi utils'
+git clone --quiet https://github.com/raspberrypi/utils /usr/src/utils
+cd /usr/src/utils/
+# Without gcc/make, this will fail on slim images.
+apt-get install -y cmake device-tree-compiler libfdt-dev build-essential
+cmake .
+make
+make install
+
 status_stage3 'Install the kernel'
 eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-v6 linux-headers-rpi-v6 brcmfmac-nexmon-dkms pi-bluetooth
 
