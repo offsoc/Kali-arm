@@ -11,7 +11,8 @@ for archive in "${work_dir}"/var/cache/apt/archives/*eatmydata*.deb; do
 done
 
 # Prepare dpkg to use eatmydata
-systemd-nspawn_exec dpkg-divert --divert /usr/bin/dpkg-eatmydata --rename --add /usr/bin/dpkg
+#systemd-nspawn_exec dpkg-divert --divert /usr/bin/dpkg-eatmydata --rename --add /usr/bin/dpkg
+chroot_exec dpkg-divert --divert /usr/bin/dpkg-eatmydata --rename --add /usr/bin/dpkg
 
 cat >"${work_dir}"/usr/bin/dpkg <<EOF
 #!/bin/sh

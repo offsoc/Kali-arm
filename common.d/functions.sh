@@ -194,13 +194,34 @@ function systemd-nspawn_exec() {
         if [ ${architecture} == "arm64" ]; then
           #export QEMU_CPU=max,pauth-impdef=on
           export QEMU_CPU=cortex-a72
-          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -E $ENV5 -M "$machine" -D "$work_dir" "$@"
+          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -E $ENV5 -M "$machine" -D "${work_dir}" "$@"
         else
-          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "$work_dir" "$@"
+          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "${work_dir}" "$@"
         fi
     else
-        systemd-nspawn $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "$work_dir" "$@"
+        systemd-nspawn $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "${work_dir}" "$@"
     fi
+}
+
+# chroot environment
+function chroot_exec() {
+    log "chroot $*" gray
+
+    # Define environment variables
+    ENV_VARS="RUNLEVEL=1 LANG=C DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes"
+    [ "${architecture}" == "arm64" ] && ENV_VARS="$ENV_VARS QEMU_CPU=cortex-a72"
+
+    # Ensure /proc is mounted inside chroot
+    mount --types proc /proc "${work_dir}/proc"
+
+    # Determine whether to use QEMU (only if we're cross-emulating ARM64)
+    [ "$(arch)" != "aarch64" ] && [ "${architecture}" == "arm64" ] && USE_QEMU="$qemu_bin"
+
+    # Run chroot, using QEMU only if needed
+    chroot "${work_dir}" /bin/bash -c "$ENV_VARS exec ${USE_QEMU:+$USE_QEMU} ${*:-/bin/bash}" < /dev/stdin
+
+    # Cleanup: Unmount /proc
+    umount -lf "${work_dir}/proc"
 }
 
 # Create the rootfs - not much to modify here, except maybe throw in some more packages if you want.
@@ -631,7 +652,7 @@ function umount_partitions() {
     cd "${repo_dir}/"
 
     # Define possible boot mount points
-    boot_mounts=("${base_dir}/root/boot" "${base_dir}/root/boot/firmware")
+    boot_mounts=("${base_dir}/root/boot" "${base_dir}/root/boot/firmware" "${base_dir}/root/proc")
 
     # Unmount boot partitions if they exist
     for mount in "${boot_mounts[@]}"; do

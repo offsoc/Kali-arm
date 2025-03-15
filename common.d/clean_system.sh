@@ -11,7 +11,8 @@ fi
 status "clean system"
 
 # Clean system
-systemd-nspawn_exec <<'EOF'
+#systemd-nspawn_exec <<'EOF'
+chroot_exec <<'EOF'
 rm -f /0
 rm -rf /bsp
 command fc-cache && fc-cache -frs
@@ -21,7 +22,7 @@ rm -rf /hs_err*
 rm -rf /etc/console-setup/cached_*
 rm -rf /userland
 rm -rf /opt/vc/src
-rm -rf /third-stage
+rm -f /third-stage
 rm -f /etc/ssh/ssh_host_*
 rm -rf /var/lib/dpkg/*-old
 rm -rf /var/lib/apt/lists/*
