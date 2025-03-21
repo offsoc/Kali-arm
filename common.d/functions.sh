@@ -652,6 +652,8 @@ function umount_partitions() {
     # Make sure we are somewhere we are not going to unmount
     cd "${repo_dir}/"
 
+    # Run a sync to flush any cached data
+    sync
     # Define possible mounted points
     # This function is called both if success and failed
     # If we fail early in the process, then work_dir may still have proc mounted
