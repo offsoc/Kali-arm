@@ -6,6 +6,7 @@
 # This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
 # More information: https://www.kali.org/docs/arm/raspberry-pi-zero-w-pi-tail/
 #
+set -e
 
 # Hardware model
 hw_model=${hw_model:-"raspberry-pi-zero-w-pitail"}
@@ -158,8 +159,8 @@ status_stage3 'Boot into cli'
 systemctl set-default multi-user.target
 
 status_stage3 'Create swap file'
-sudo dd if=/dev/zero of=/swapfile.img bs=1M count=1024
-sudo mkswap /swapfile.img
+dd if=/dev/zero of=/swapfile.img bs=1M count=1024
+mkswap /swapfile.img
 chmod 0600 /swapfile.img
 
 status_stage3 'Enable Pi-Tail services'

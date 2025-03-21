@@ -6,6 +6,7 @@
 # This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
 # More information: https://www.kali.org/docs/arm/usb-armory-mkii/
 #
+set -e
 
 # Hardware model
 hw_model=${hw_model:-"usb-armory-mkii"}

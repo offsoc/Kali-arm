@@ -6,6 +6,7 @@
 # This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
 # More information: https://www.kali.org/docs/arm/raspberry-pi-zero-2-w-pi-tail/
 #
+set -e
 
 # Hardware model
 export hw_model=${hw_model:-"raspberry-pi-zero-2-w-pitail"}

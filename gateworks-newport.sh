@@ -6,6 +6,7 @@
 # This is a community script - you will need to generate your own image to use
 # More information: https://www.kali.org/docs/arm/gateworks-newport/
 #
+set -e
 
 # Hardware model
 hw_model=${hw_model:-"gateworks-newport"}
