@@ -11,7 +11,6 @@ fi
 status "clean system"
 
 # Clean system
-#systemd-nspawn_exec <<'EOF'
 chroot_exec <<'EOF'
 rm -f /0
 rm -rf /bsp
@@ -31,7 +30,7 @@ rm -rf /var/cache/debconf/*-old
 rm -rf /var/cache/apt/archives/*
 rm -rf /etc/apt/apt.conf.d/apt_opts
 rm -rf /etc/apt/apt.conf.d/99_norecommends
-for logs in $(find /var/log -type f); do echo > $logs; done
+find /var/log -type f ! -path "/var/log/apt/*" ! -path "/var/log/postgresql/*" ! -empty -exec truncate -s 0 {} +
 history -c
 EOF
 
