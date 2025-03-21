@@ -651,11 +651,13 @@ function umount_partitions() {
     # Make sure we are somewhere we are not going to unmount
     cd "${repo_dir}/"
 
-    # Define possible boot mount points
-    boot_mounts=("${base_dir}/root/boot" "${base_dir}/root/boot/firmware" "${base_dir}/root/proc")
+    # Define possible mounted points
+    # This function is called both if success and failed
+    # If we fail early in the process, then work_dir may still have proc mounted
+    possible_mounts=("${base_dir}/root/boot" "${base_dir}/root/boot/firmware" "${base_dir}/root/proc" "${work_dir}/proc")
 
     # Unmount boot partitions if they exist
-    for mount in "${boot_mounts[@]}"; do
+    for mount in "${possible_mounts[@]}"; do
         if mountpoint -q "$mount"; then
             umount -q "$mount"
         fi
