@@ -81,7 +81,8 @@ function debug_enable() {
     mkdir -p ./logs/
     log "Debug: Enabled" green
     log "Output: ${log}" green
-    exec &> >(tee -a "${log}") 2>&1
+    # Pipe output to both console and log, but strip ANSI codes from log
+    exec > >(tee -a >(sed 's/\x1B\[[0-9;]*[mK]//g' >> "${log}")) 2>&1
 
     # Print all commands inside of script
     set -x
