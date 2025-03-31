@@ -178,6 +178,7 @@ function include() {
 
 # systemd-nspawn environment
 # Putting quotes around $extra_args causes systemd-nspawn to pass the extra arguments as 1, so leave it unquoted.
+# This is left in for legacy/community scripts which call it directly until someone moves them to the new way
 function systemd-nspawn_exec() {
     log "systemd-nspawn $*" gray
     ENV1="RUNLEVEL=1"
