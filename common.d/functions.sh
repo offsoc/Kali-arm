@@ -219,6 +219,7 @@ function chroot_exec() {
     # Determine whether to use QEMU (only if we're cross-emulating ARM64)
     if [ "$(arch)" != "aarch64" ] && [ "${architecture}" == "arm64" ]; then
         USE_QEMU="$qemu_bin"
+        cat /proc/sys/fs/binfmt_misc/qemu-aarch64
 
         # Copy QEMU binary into chroot if it’s missing
         if [ ! -f "${work_dir}${qemu_bin}" ]; then
@@ -228,7 +229,7 @@ function chroot_exec() {
     fi
 
     # Run chroot, using QEMU only if needed
-    chroot "${work_dir}" /bin/bash -c "$ENV_VARS exec ${USE_QEMU:+$USE_QEMU} ${*:-/bin/bash}" < /dev/stdin
+    chroot "${work_dir}" /bin/bash -c "exec env $ENV_VARS ${*:-/bin/bash}" < /dev/stdin
 
     # Cleanup: Unmount /proc
     umount -lf "${work_dir}/proc"
