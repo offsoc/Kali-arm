@@ -81,7 +81,8 @@ function debug_enable() {
     mkdir -p ./logs/
     log "Debug: Enabled" green
     log "Output: ${log}" green
-    exec &> >(tee -a "${log}") 2>&1
+    # Pipe output to both console and log, but strip ANSI codes from log
+    exec > >(tee -a >(sed 's/\x1B\[[0-9;]*[mK]//g' >> "${log}")) 2>&1
 
     # Print all commands inside of script
     set -x
@@ -177,6 +178,7 @@ function include() {
 
 # systemd-nspawn environment
 # Putting quotes around $extra_args causes systemd-nspawn to pass the extra arguments as 1, so leave it unquoted.
+# This is left in for legacy/community scripts which call it directly until someone moves them to the new way
 function systemd-nspawn_exec() {
     log "systemd-nspawn $*" gray
     ENV1="RUNLEVEL=1"
@@ -194,13 +196,34 @@ function systemd-nspawn_exec() {
         if [ ${architecture} == "arm64" ]; then
           #export QEMU_CPU=max,pauth-impdef=on
           export QEMU_CPU=cortex-a72
-          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -E $ENV5 -M "$machine" -D "$work_dir" "$@"
+          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -E $ENV5 -M "$machine" -D "${work_dir}" "$@"
         else
-          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "$work_dir" "$@"
+          systemd-nspawn --bind-ro "$qemu_bin" $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "${work_dir}" "$@"
         fi
     else
-        systemd-nspawn $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "$work_dir" "$@"
+        systemd-nspawn $extra_args --capability=cap_setfcap -E $ENV1 -E $ENV2 -E $ENV3 -E $ENV4 -M "$machine" -D "${work_dir}" "$@"
     fi
+}
+
+# chroot environment
+function chroot_exec() {
+    log "chroot $*" gray
+
+    # Define environment variables
+    ENV_VARS="RUNLEVEL=1 LANG=C DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes"
+    [ "${architecture}" == "arm64" ] && ENV_VARS="$ENV_VARS QEMU_CPU=cortex-a72"
+
+    # Ensure /proc is mounted inside chroot
+    mount --types proc /proc "${work_dir}/proc"
+
+    # Determine whether to use QEMU (only if we're cross-emulating ARM64)
+    [ "$(arch)" != "aarch64" ] && [ "${architecture}" == "arm64" ] && USE_QEMU="$qemu_bin"
+
+    # Run chroot, using QEMU only if needed
+    chroot "${work_dir}" /bin/bash -c "$ENV_VARS exec ${USE_QEMU:+$USE_QEMU} ${*:-/bin/bash}" < /dev/stdin
+
+    # Cleanup: Unmount /proc
+    umount -lf "${work_dir}/proc"
 }
 
 # Create the rootfs - not much to modify here, except maybe throw in some more packages if you want.
@@ -630,11 +653,15 @@ function umount_partitions() {
     # Make sure we are somewhere we are not going to unmount
     cd "${repo_dir}/"
 
-    # Define possible boot mount points
-    boot_mounts=("${base_dir}/root/boot" "${base_dir}/root/boot/firmware")
+    # Run a sync to flush any cached data
+    sync
+    # Define possible mounted points
+    # This function is called both if success and failed
+    # If we fail early in the process, then work_dir may still have proc mounted
+    possible_mounts=("${base_dir}/root/boot" "${base_dir}/root/boot/firmware" "${base_dir}/root/proc" "${work_dir}/proc")
 
     # Unmount boot partitions if they exist
-    for mount in "${boot_mounts[@]}"; do
+    for mount in "${possible_mounts[@]}"; do
         if mountpoint -q "$mount"; then
             umount -q "$mount"
         fi
