@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154
 
+# fallback TERM if not set or set to something too basic
+if [[ -z "$TERM" || "$TERM" == "dumb" || "$TERM" == "vt220" ]]; then
+    export TERM="xterm-256color"
+fi
+
 # Print color echo
 function log() {
     local set_color="$2"
