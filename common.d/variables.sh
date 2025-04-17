@@ -107,7 +107,7 @@ if [ -f "${repo_dir}"/builder.txt ]; then
 
 fi
 
-# Incase `su` was used
+# In case `su` was used
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 ## From ./common.d/functions.sh
