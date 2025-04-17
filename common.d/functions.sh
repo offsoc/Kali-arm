@@ -224,7 +224,6 @@ function chroot_exec() {
     # Determine whether to use QEMU (only if we're cross-emulating ARM64)
     if [ "$(arch)" != "aarch64" ] && [ "${architecture}" == "arm64" ]; then
         USE_QEMU="$qemu_bin"
-        cat /proc/sys/fs/binfmt_misc/qemu-aarch64
 
         # Copy QEMU binary into chroot if it’s missing
         if [ ! -f "${work_dir}${qemu_bin}" ]; then
