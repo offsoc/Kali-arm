@@ -267,23 +267,29 @@ function disable_proxy() {
 
 # Mirror & suite replacement
 function restore_mirror() {
+    local default_mirror="http://http.kali.org/kali"
+    local default_suite="kali-rolling"
+
+    # Respect environment variables, allow overrides via replace_*
+    local mirror="${mirror:-$default_mirror}"
+    local suite="${suite:-$default_suite}"
+
     if [[ -n "${replace_mirror}" ]]; then
-        export mirror=${replace_mirror}
-
-    elif [[ -n "${replace_suite}" ]]; then
-        export suite=${replace_suite}
-
+        mirror="${replace_mirror}"
     fi
 
-    log "Mirror & suite replacement" gray
+    if [[ -n "${replace_suite}" ]]; then
+        suite="${replace_suite}"
+    fi
 
-    # For now, restore_mirror will put the default kali mirror in, fix after 2021.3
-    cat <<EOF >"${work_dir}"/etc/apt/sources.list
+    log "Setting APT sources to mirror: ${mirror}, suite: ${suite}" gray
+
+    cat <<EOF >"${work_dir}/etc/apt/sources.list"
 # See https://www.kali.org/docs/general-use/kali-linux-sources-list-repositories/
-deb http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware
+deb ${mirror} ${suite} main contrib non-free non-free-firmware
 
 # Additional line for source packages
-# deb-src http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware
+# deb-src ${mirror} ${suite} main contrib non-free non-free-firmware
 EOF
 }
 
