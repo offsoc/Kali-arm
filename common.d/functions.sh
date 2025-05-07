@@ -267,23 +267,29 @@ function disable_proxy() {
 
 # Mirror & suite replacement
 function restore_mirror() {
+    local default_mirror="http://http.kali.org/kali"
+    local default_suite="kali-rolling"
+
+    # Respect environment variables, allow overrides via replace_*
+    local mirror="${mirror:-$default_mirror}"
+    local suite="${suite:-$default_suite}"
+
     if [[ -n "${replace_mirror}" ]]; then
-        export mirror=${replace_mirror}
-
-    elif [[ -n "${replace_suite}" ]]; then
-        export suite=${replace_suite}
-
+        mirror="${replace_mirror}"
     fi
 
-    log "Mirror & suite replacement" gray
+    if [[ -n "${replace_suite}" ]]; then
+        suite="${replace_suite}"
+    fi
 
-    # For now, restore_mirror will put the default kali mirror in, fix after 2021.3
-    cat <<EOF >"${work_dir}"/etc/apt/sources.list
+    log "Setting APT sources to mirror: ${mirror}, suite: ${suite}" gray
+
+    cat <<EOF >"${work_dir}/etc/apt/sources.list"
 # See https://www.kali.org/docs/general-use/kali-linux-sources-list-repositories/
-deb http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware
+deb ${mirror} ${suite} main contrib non-free non-free-firmware
 
 # Additional line for source packages
-# deb-src http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware
+# deb-src ${mirror} ${suite} main contrib non-free non-free-firmware
 EOF
 }
 
@@ -293,28 +299,22 @@ function limit_cpu() {
         cpu_limit=-1
         log "CPU limiting has been disabled" yellow
         eval "${@}"
-
         return $?
-
     elif [[ ${cpu_limit:=} -gt "100" ]]; then
         log "CPU limit (${cpu_limit}) is higher than 100" yellow
         cpu_limit=100
-
     fi
 
     if [[ -z $cpu_limit ]]; then
         log "CPU limit unset" yellow
         local cpu_shares=$((num_cores * 1024))
         local cpu_quota="-1"
-
     else
         log "Limiting CPU (${cpu_limit}%)" yellow
         local cpu_shares=$((1024 * num_cores * cpu_limit / 100))  # 1024 max value per core
         local cpu_quota=$((100000 * num_cores * cpu_limit / 100)) # 100000 max value per core
-
     fi
 
-    # Random group name
     local rand
     rand=$(
         tr -cd 'A-Za-z0-9' </dev/urandom | head -c4
@@ -325,29 +325,29 @@ function limit_cpu() {
     cgset -r cpu.shares="$cpu_shares" cpulimit-"$rand"
     cgset -r cpu.cfs_quota_us="$cpu_quota" cpulimit-"$rand"
 
-    # Retry command
     local n=1
     local max=5
     local delay=2
+    local exit_code=1
 
     while true; do
-        # shellcheck disable=SC2015
-        cgexec -g cpu:cpulimit-"$rand" "$@" && break || {
-            if [[ $n -lt $max ]]; then
-                ((n++))
-                log "Command failed. Attempt $n/$max" red
-                sleep $delay
+        cgexec -g cpu:cpulimit-"$rand" "$@"
+        exit_code=$?
 
-            else
-                log "The command has failed after $n attempts" yellow
-                break
-
-            fi
-        }
-
+        if [[ $exit_code -eq 0 ]]; then
+            break
+        elif [[ $n -lt $max ]]; then
+            ((n++))
+            log "Command failed. Attempt $n/$max" red
+            sleep $delay
+        else
+            log "The command has failed after $n attempts" yellow
+            break
+        fi
     done
 
     cgdelete -g cpu:/cpulimit-"$rand"
+    return $exit_code
 }
 
 function sources_list() {
