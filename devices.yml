@@ -56,7 +56,7 @@ devices:
             slug: "raspberry-pi-2"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -67,7 +67,7 @@ devices:
             slug: "raspberry-pi-2"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
       - board: "rasbperry-pi-3"
@@ -94,7 +94,7 @@ devices:
             slug: "raspberry-pi-3"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -105,7 +105,7 @@ devices:
             slug: "raspberry-pi-3"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
       - board: "raspberry-pi-4"
@@ -133,7 +133,7 @@ devices:
             slug: "raspberry-pi-4"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -144,7 +144,7 @@ devices:
             slug: "raspberry-pi-400"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
       - board: "raspberry-pi-400"
@@ -171,7 +171,7 @@ devices:
             slug: "raspberry-pi-400"
             build-script: "raspberry-pi.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
@@ -182,7 +182,7 @@ devices:
             slug: "raspberry-pi-400"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
       - board: "raspberry-pi-5"
@@ -209,7 +209,7 @@ devices:
             slug: "raspberry-pi-5"
             build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
-            kernel-version: "6.6.63"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
       - board: "raspberry-pi1"
@@ -236,7 +236,7 @@ devices:
             slug: "raspberry-pi"
             build-script: "raspberry-pi1.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
       - board: "raspberry-pi-zero-2-w"
@@ -263,7 +263,7 @@ devices:
             slug: "raspberry-pi-zero-2-w"
             build-script: "raspberry-pi-zero-2-w.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
           - image: "raspberry-pi-zero-2-w-pitail-armhf.img"
@@ -274,7 +274,7 @@ devices:
             slug: "raspberry-pi-zero-2-w-pi-tail"
             build-script: "raspberry-pi-zero-2-w-pitail.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
       - board: "raspberry-pi-zero-w"
@@ -301,7 +301,7 @@ devices:
             slug: "raspberry-pi-zero-w"
             build-script: "raspberry-pi-zero-w.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
           - image: "raspberry-pi-zero-w-pitail-armel.img"
@@ -312,7 +312,7 @@ devices:
             slug: "raspberry-pi-zero-w-pi-tail"
             build-script: "raspberry-pi-zero-w-pitail.sh"
             kernel: "custom"
-            kernel-version: "6.6.74"
+            kernel-version: "6.12.20+rpt"
             image-notes: ""
 
           - image: "raspberry-pi-zero-w-p4wnp1-aloa-armel.img"
