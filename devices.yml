@@ -60,7 +60,7 @@ devices:
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
-            name: "Raspberry Pi 2 (v1.2), 3, 4 and 400 (64-bit)"
+            name: "Raspberry Pi 2 (v1.2), 3, 4, 400, 5 and 500 (64-bit)"
             architecture: "arm64"
             preferred-image: "false"
             support: "kali"
@@ -98,7 +98,7 @@ devices:
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
-            name: "Raspberry Pi 2 (v1.2), 3, 4 and 400 (64-bit)"
+            name: "Raspberry Pi 2 (v1.2), 3, 4, 400, 5 and 500 (64-bit)"
             architecture: "arm64"
             preferred-image: "false"
             support: "kali"
@@ -137,7 +137,7 @@ devices:
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
-            name: "Raspberry Pi 2 (v1.2), 3, 4 and 400 (64-bit)"
+            name: "Raspberry Pi 2 (v1.2), 3, 4, 400, 5 and 500 (64-bit)"
             architecture: "arm64"
             preferred-image: "false"
             support: "kali"
@@ -175,7 +175,7 @@ devices:
             image-notes: ""
 
           - image: "raspberry-pi-arm64.img"
-            name: "Raspberry Pi 2 (v1.2), 3, 4 and 400 (64-bit)"
+            name: "Raspberry Pi 2 (v1.2), 3, 4, 400, 5 and 500 (64-bit)"
             architecture: "arm64"
             preferred-image: "false"
             support: "kali"
@@ -201,13 +201,13 @@ devices:
         storage: ["sdcard", "usb"]
         notes: ""
         images:
-          - image: "raspberry-pi5-arm64.img"
-            name: "Raspberry Pi 5 (64-bit)"
+          - image: "raspberry-pi-arm64.img"
+            name: "Raspberry Pi 2 (v1.2), 3, 4, 400, 5 and 500 (64-bit)"
             architecture: "arm64"
             preferred-image: "false"
             support: "kali"
             slug: "raspberry-pi-5"
-            build-script: "raspberry-pi5.sh"
+            build-script: "raspberry-pi-64-bit.sh"
             kernel: "custom"
             kernel-version: "6.6.63"
             image-notes: ""
