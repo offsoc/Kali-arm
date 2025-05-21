@@ -1492,7 +1492,7 @@ devices:
             slug: "usb-armory-mki"
             build-script: "usb-armory-mki.sh"
             kernel: "vendor"
-            kernel-version: "5.15.173"
+            kernel-version: "6.12.29"
             image-notes: ""
 
       - board: "usb-armory-mkii"
@@ -1519,5 +1519,5 @@ devices:
             slug: "usb-armory-mkii"
             build-script: "usb-armory-mkii.sh"
             kernel: "vendor"
-            kernel-version: "5.15.173"
+            kernel-version: "6.12.29"
             image-notes: ""
