@@ -200,21 +200,8 @@ include third_stage
 status 'Fix VNC'
 cat <<EOF >${work_dir}/etc/polkit-1/rules.d/45-allow-colord.rules
 polkit.addRule(function(action, subject) {
-    if ((action.id == "org.freedesktop.color-manager.create-device" ||
-         action.id == "org.freedesktop.color-manager.create-profile" ||
-         action.id == "org.freedesktop.color-manager.delete-device" ||
-         action.id == "org.freedesktop.color-manager.delete-profile" ||
-         action.id == "org.freedesktop.color-manager.modify-device" ||
-         action.id == "org.freedesktop.color-manager.modify-profile") &&
-        subject.user == "*")
-    {
-        if (subject.active && subject.local) {
-            return polkit.Result.YES;
-        }
-        if (subject.inactive && subject.local) {
-            return polkit.Result.NO;
-        }
-        return polkit.Result.NO;
+    if (action.id.startsWith("org.freedesktop.color-manager.") && subject.isInGroup("users")) {
+        return polkit.Result.YES;
     }
 });
 EOF
