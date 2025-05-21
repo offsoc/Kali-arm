@@ -103,32 +103,43 @@ include clean_system
 # Kernel section. If you want to use a custom kernel, or configuration, replace
 # them in this section
 status "Kernel stuff"
-git clone --depth 1 -b linux-5.15.y git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git ${work_dir}/usr/src/kernel
+git clone --depth 1 -b linux-6.12.y git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git ${work_dir}/usr/src/kernel
 cd ${work_dir}/usr/src/kernel
 git rev-parse HEAD >${work_dir}/usr/src/kernel-at-commit
 touch .scmversion
 export ARCH=arm
 export CROSS_COMPILE=arm-linux-gnueabihf-
 #patch -p1 --no-backup-if-mismatch < ${repo_dir}/patches/ARM-drop-cc-option-fallbacks-for-architecture-select.patch
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-5.15.patch
+patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-6.12.patch
 patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/0001-wireless-carl9170-Enable-sniffer-mode-promisc-flag-t.patch
-wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/usbarmory_linux-5.15.defconfig -O ../usbarmory_linux-5.15_defconfig
-wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-512M-usbarmory.dts -O arch/arm/boot/dts/imx6ul-usbarmory.dts
-wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory-tzns.dts -O arch/arm/boot/dts/imx6ulz-usbarmory-tzns.dts
-wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory.dts -O arch/arm/boot/dts/imx6ulz-usbarmory.dts
-cp ../usbarmory_linux-5.15_defconfig arch/arm/configs/
-make usbarmory_linux-5.15_defconfig
-make LOADADDR=0x80000000 -j $(grep -c processor /proc/cpuinfo) uImage modules imx6ul-usbarmory.dtb imx6ulz-usbarmory-tzns.dtb imx6ulz-usbarmory.dtb
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/usbarmory_linux-6.12.defconfig -O ../usbarmory_linux-6.12_defconfig
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-1G-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ul-1G-usbarmory.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-512M-usbarmory-lan.dts -O arch/arm/boot/dts/nxp/imx/imx6ul-usbarmory-lan.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-512M-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ul-usbarmory.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ull-512M-usbarmory-lan.dts -O arch/arm/boot/dts/nxp/imx/imx6ull-usbarmory-lan.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-1G-usbarmory-tzns.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-1G-usbarmory-tzns.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-1G-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-1G-usbarmory.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory-tzns.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-usbarmory-tzns.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-usbarmory.dts
+cp ../usbarmory_linux-6.12_defconfig arch/arm/configs/
+make usbarmory_linux-6.12_defconfig
+make LOADADDR=0x80000000 -j $(grep -c processor /proc/cpuinfo) uImage modules nxp/imx/imx6ul-usbarmory-lan.dtb nxp/imx/imx6ul-usbarmory.dtb nxp/imx/imx6ull-usbarmory-lan.dtb nxp/imx/imx6ulz-usbarmory-tzns.dtb nxp/imx/imx6ulz-usbarmory.dtb
 make modules_install INSTALL_MOD_PATH=${work_dir}
 cp arch/arm/boot/zImage ${work_dir}/boot/
-cp arch/arm/boot/dts/imx6*-usbarmory*.dtb ${work_dir}/boot/
+cp arch/arm/boot/dts/nxp/imx/imx6*-usbarmory*.dtb ${work_dir}/boot/
 make mrproper
 
 # Since these aren't integrated into the kernel yet, mrproper removes them
-cp ../usbarmory_linux-5.15_defconfig arch/arm/configs/
-wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-512M-usbarmory.dts -O arch/arm/boot/dts/imx6ul-usbarmory.dts
-wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory-tzns.dts -O arch/arm/boot/dts/imx6ulz-usbarmory-tzns.dts
-wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory.dts -O arch/arm/boot/dts/imx6ulz-usbarmory.dts
+cp ../usbarmory_linux-6.12_defconfig arch/arm/configs/
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-1G-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ul-1G-usbarmory.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-512M-usbarmory-lan.dts -O arch/arm/boot/dts/nxp/imx/imx6ul-usbarmory-lan.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ul-512M-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ul-usbarmory.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ull-512M-usbarmory-lan.dts -O arch/arm/boot/dts/nxp/imx/imx6ull-usbarmory-lan.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-1G-usbarmory-tzns.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-1G-usbarmory-tzns.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-1G-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-1G-usbarmory.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory-tzns.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-usbarmory-tzns.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-two/imx6ulz-512M-usbarmory.dts -O arch/arm/boot/dts/nxp/imx/imx6ulz-usbarmory.dts
+
 # Fix up the symlink for building external modules
 # kernver is used so we don't need to keep track of what the current compiled
 # version is
@@ -136,7 +147,6 @@ status "building external modules"
 kernver=$(ls ${work_dir}/lib/modules/)
 cd ${work_dir}/lib/modules/${kernver}
 rm build
-rm source
 ln -s /usr/src/kernel build
 ln -s /usr/src/kernel source
 
@@ -179,8 +189,8 @@ sync
 
 status "u-Boot"
 cd "${work_dir}"
-wget ftp://ftp.denx.de/pub/u-boot/u-boot-2024.10.tar.bz2
-tar xvf u-boot-2024.10.tar.bz2 && cd u-boot-2024.10
+wget ftp://ftp.denx.de/pub/u-boot/u-boot-2025.04.tar.bz2
+tar xvf u-boot-2025.04.tar.bz2 && cd u-boot-2025.04
 wget $githubraw/usbarmory/usbarmory/master/software/u-boot/0001-ARM-mx6-add-support-for-USB-armory-Mk-II-board.patch
 patch -p1 --no-backup-if-mismatch <0001-ARM-mx6-add-support-for-USB-armory-Mk-II-board.patch
 make distclean
