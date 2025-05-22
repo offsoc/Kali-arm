@@ -2,7 +2,7 @@
 
 log "Selecting packages..." gray
 
-debootstrap_base="kali-archive-keyring,eatmydata,usrmerge"
+debootstrap_base="kali-archive-keyring,eatmydata,usrmerge,ca-certificates"
 
 # This is the bare minimum if you want to start from very scratch
 minimal_pkgs="ca-certificates cloud-init haveged iw netplan.io network-manager \
