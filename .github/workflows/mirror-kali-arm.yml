@@ -1,4 +1,4 @@
-name: Mirror ExploitDB Repo with Git LFS
+name: Mirror kali-arm Repo with Git LFS
 
 on:
   workflow_dispatch:
