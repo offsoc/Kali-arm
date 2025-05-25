@@ -1,0 +1,34 @@
+name: Mirror ExploitDB Repo with Git LFS
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # 每日 UTC 0 点自动运行
+
+jobs:
+  mirror-repo:
+    runs-on: ubuntu-latest
+
+    env:
+      SOURCE_REPO: https://gitlab.com/kalilinux/build-scripts/kali-arm.git
+      TARGET_REPO: https://github.com/offsoc/kali-arm.git  # 替换为目标地址（或添加 token）
+      REPO_DIR: kali-arm
+
+    steps:
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Clone ExploitDB with Git LFS
+        run: |
+          git clone --mirror "$SOURCE_REPO" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git lfs fetch --all
+
+      - name: Push mirror to remote
+        run: |
+          cd "$REPO_DIR"
+          git push --mirror "$TARGET_REPO"
+          git lfs push --all "$TARGET_REPO"
