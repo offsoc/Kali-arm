@@ -46,6 +46,9 @@ cp /bsp/scripts/radxa/zz-update-uenv /etc/kernel/postinst.d/
 
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
+
+status_stage3 'Remove cloud-init where it is not used'
+eatmydata apt-get -y purge --autoremove cloud-init
 EOF
 
 # Run third stage

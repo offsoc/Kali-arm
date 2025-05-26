@@ -6,6 +6,7 @@
 # This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
 # More information: https://www.kali.org/docs/arm/raspberry-pi-zero-w-pi-tail/
 #
+set -e
 
 # Hardware model
 hw_model=${hw_model:-"raspberry-pi-zero-w-pitail"}
@@ -24,6 +25,8 @@ basic_network
 #add_interface eth0
 
 # Download Pi-Tail files
+status "Download Pi-Tail files"
+mkdir -p ${work_dir}/boot/firmware
 git clone --depth 1 https://github.com/re4son/Kali-Pi ${work_dir}/opt/Kali-Pi
 wget -O ${work_dir}/etc/systemd/system/pi-tail.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tail.service
 wget -O ${work_dir}/etc/systemd/system/pi-tailbt.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.service
@@ -33,17 +36,17 @@ wget -O ${work_dir}/etc/systemd/network/pan0.network https://raw.githubuserconte
 wget -O ${work_dir}/etc/systemd/system/bt-agent.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-agent.service
 wget -O ${work_dir}/etc/systemd/system/bt-network.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-network.service
 wget -O ${work_dir}/lib/systemd/system/hciuart.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/hciuart.service
-wget -O ${work_dir}/boot/cmdline.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
-wget -O ${work_dir}/boot/cmdline.storage https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
-wget -O ${work_dir}/boot/cmdline.eth https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.eth
-wget -O ${work_dir}/boot/interfaces https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces
-wget -O ${work_dir}/boot/interfaces.example.wifi https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi
-wget -O ${work_dir}/boot/interfaces.example.wifi-AP https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi-AP
-wget -O ${work_dir}/boot/pi-tailbt.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.example
-wget -O ${work_dir}/boot/wpa_supplicant.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant.conf
-wget -O ${work_dir}/boot/Pi-Tail.README https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.README
-wget -O ${work_dir}/boot/Pi-Tail.HOWTO https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.HOWTO
-wget -O ${work_dir}/boot/config.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/config.txt
+wget -O ${work_dir}/boot/firmware/cmdline.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
+wget -O ${work_dir}/boot/firmware/cmdline.storage https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage
+wget -O ${work_dir}/boot/firmware/cmdline.eth https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.eth
+wget -O ${work_dir}/boot/firmware/interfaces https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces
+wget -O ${work_dir}/boot/firmware/interfaces.example.wifi https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi
+wget -O ${work_dir}/boot/firmware/interfaces.example.wifi-AP https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example.wifi-AP
+wget -O ${work_dir}/boot/firmware/pi-tailbt.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.example
+wget -O ${work_dir}/boot/firmware/wpa_supplicant.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant.conf
+wget -O ${work_dir}/boot/firmware/Pi-Tail.README https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.README
+wget -O ${work_dir}/boot/firmware/Pi-Tail.HOWTO https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.HOWTO
+wget -O ${work_dir}/boot/firmware/config.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/config.txt
 wget -O ${work_dir}/etc/udev/rules.d/70-persistent-net.rules https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/70-persistent-net.rules
 wget -O ${work_dir}/opt/Kali-Pi/Menus/RAS-AP/dnsmasq-dhcpd.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/dnsmasq-dhcpd.conf
 wget -O ${work_dir}/opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/ras-ap.sh
@@ -56,9 +59,13 @@ mkdir -p ${work_dir}/etc/skel/.vnc/
 wget -O ${work_dir}/etc/skel/.vnc/xstartup https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/vncservice/xstartup
 chmod 0750 ${work_dir}/etc/skel/.vnc/xstartup
 
+# Sed fixups for the above to point to /boot/firmware now that we use it
+sed -i -e "s|/boot/|/boot/firmware/|g" ${work_dir}/boot/firmware/Pi-Tail.HOWTO
+sed -i -e "s|/boot|/boot/firmware|g" ${work_dir}/etc/systemd/system/pi-tail.service
+
 # Third stage
 cat <<EOF >>"${work_dir}"/third-stage
-status_stage3 'Create kali user'
+status_stage3 'Create Kali user'
 # Normally this would be done by runonce, however, because this image is special, and needs the kali home directory
 # to exist before the first boot, we create it here, and remove the script that does it in the runonce stuff later.
 # Create kali user with kali password... but first, we need to manually make some groups because they don't yet exist..
@@ -74,8 +81,8 @@ groupadd -g 1000 kali
 useradd -m -u 1000 -g 1000 -G sudo,audio,bluetooth,cdrom,dialout,dip,lpadmin,netdev,plugdev,scanner,video,kali -s /bin/bash kali
 echo "kali:kali" | chpasswd
 
-status_stage3 'Install PiTail packages'
-eatmydata apt-get install -y ${pitail_pkgs} || eatmydata apt-get install -y --fix-broken
+status_stage3 'Install Pi-Tail packages'
+eatmydata apt-get install -y ${pitail_pkgs}
 
 status_stage3 'Copy rpi services'
 cp -p /bsp/services/rpi/*.service /etc/systemd/system/
@@ -84,11 +91,24 @@ status_stage3 'Script mode wlan monitor START/STOP'
 install -m755 /bsp/scripts/monstart /usr/bin/
 install -m755 /bsp/scripts/monstop /usr/bin/
 
-status_stage3 'Install the kernel packages'
-echo "deb http://http.re4son-kernel.com/re4son kali-pi main" > /etc/apt/sources.list.d/re4son.list
-wget -qO /etc/apt/trusted.gpg.d/kali_pi-archive-keyring.gpg https://re4son-kernel.com/keys/http/kali_pi-archive-keyring.gpg
-eatmydata apt-get update
-eatmydata apt-get install -y ${re4son_pkgs}
+status_stage3 'Remove cloud-init'
+eatmydata apt-get -y -q purge --autoremove cloud-init
+
+status_stage3 'Build RaspberryPi utils'
+git clone --quiet https://github.com/raspberrypi/utils /usr/src/utils
+cd /usr/src/utils/
+# Without gcc/make, this will fail on slim images.
+apt-get install -y cmake device-tree-compiler libfdt-dev build-essential
+cmake .
+make
+make install
+
+status_stage3 'Install the kernel'
+if [[ "${architecture}" == "armhf" ]]; then
+eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-v7 linux-image-rpi-v7l linux-headers-rpi-v7 linux-headers-rpi-v7l brcmfmac-nexmon-dkms pi-bluetooth
+else
+eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-v6 linux-headers-rpi-v6 brcmfmac-nexmon-dkms pi-bluetooth
+fi
 
 status_stage3 'Copy script for handling wpa_supplicant file'
 install -m755 /bsp/scripts/copy-user-wpasupplicant.sh /usr/bin/
@@ -96,7 +116,7 @@ install -m755 /bsp/scripts/copy-user-wpasupplicant.sh /usr/bin/
 status_stage3 'Enable copying of user wpa_supplicant.conf file'
 systemctl enable copy-user-wpasupplicant
 
-status_stage3 'Enabling ssh by putting ssh or ssh.txt file in /boot'
+status_stage3 'Enabling ssh by putting ssh or ssh.txt file in /boot/firmware'
 systemctl enable enable-ssh
 
 status_stage3 'Disable haveged daemon'
@@ -139,8 +159,8 @@ status_stage3 'Boot into cli'
 systemctl set-default multi-user.target
 
 status_stage3 'Create swap file'
-sudo dd if=/dev/zero of=/swapfile.img bs=1M count=1024
-sudo mkswap /swapfile.img
+dd if=/dev/zero of=/swapfile.img bs=1M count=1024
+mkswap /swapfile.img
 chmod 0600 /swapfile.img
 
 status_stage3 'Enable Pi-Tail services'
@@ -164,20 +184,26 @@ rm /etc/runonce.d/00-add-user
 
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
+
+#status_stage3 'Enable hciuart and bluetooth'
+#systemctl enable hciuart
+#systemctl enable bluetooth
+cp /bsp/firmware/rpi/config.txt /boot/firmware/config.txt
+echo -e "\ndtoverlay=dwc2" >> /boot/firmware/config.txt
+echo -e "DO NOT EDIT THIS FILE\n\nThe file you are looking for has moved to /boot/firmware/config.txt" > /boot/config.txt
 EOF
 
 # Run third stage
 include third_stage
 
 ## Fix the the infamous “Authentication Required to Create Managed Color Device” in vnc
-mkdir -p ${work_dir}/etc/polkit-1/localauthority/50-local.d/
-cat <<EOF >${work_dir}/etc/polkit-1/localauthority/50-local.d/45-allow-colord.pkla
-[Allow Colord all Users]
-    Identity=unix-user:*
-    Action=org.freedesktop.color-manager.create-device;org.freedesktop.color-manager.create-profile;org.freedesktop.color-manager.delete-device;org.freedesktop.color-manager.delete-profile;org.freedesktop.color-manager.modify-device;org.freedesktop.color-manager.modify-profile
-    ResultAny=no
-    ResultInactive=no
-    ResultActive=yes
+status 'Fix VNC'
+cat <<EOF >${work_dir}/etc/polkit-1/rules.d/45-allow-colord.rules
+polkit.addRule(function(action, subject) {
+    if (action.id.startsWith("org.freedesktop.color-manager.") && subject.isInGroup("users")) {
+        return polkit.Result.YES;
+    }
+});
 EOF
 
 status 'Always put our favourite adapter as wlan1'
@@ -186,10 +212,24 @@ cat <<EOF >${work_dir}/etc/udev/rules.d/70-persistent-net.rules
 SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan1"
 EOF
 
-# Clean system
-include clean_system
+# Firmware needed for the wifi
+cd "${work_dir}"
+status 'Clone Wi-Fi/Bluetooth firmware'
+git clone --quiet --depth 1 https://github.com/rpi-distro/firmware-nonfree
+cd firmware-nonfree/debian/config/brcm80211
+rsync -HPaz brcm "${work_dir}"/lib/firmware/
+rsync -HPaz cypress "${work_dir}"/lib/firmware/
+cd "${work_dir}"/lib/firmware/cypress
+ln -sf cyfmac43455-sdio-standard.bin cyfmac43455-sdio.bin
+rm -rf "${work_dir}"/firmware-nonfree
+
+# bluetooth firmware
+wget -q 'https://github.com/RPi-Distro/bluez-firmware/raw/bookworm/debian/firmware/broadcom/BCM4345C0.hcd' -O "${work_dir}"/lib/firmware/brcm/BCM4345C0.hcd
 
 cd "${repo_dir}/"
+
+# Clean system
+include clean_system
 
 # Calculate the space to create the image and create
 make_image
@@ -206,8 +246,14 @@ make_loop
 # Create file systems
 mkfs_partitions
 
-# Make fstab.
+# Make fstab
 make_fstab
+
+# RaspberryPi devices mount the first partition on /boot/firmware
+sed -i -e 's|/boot|/boot/firmware|' "${work_dir}"/etc/fstab
+
+# Configure Raspberry Pi firmware
+#include rpi_firmware
 
 # Create the dirs for the partitions and mount them
 status "Create the dirs for the partitions and mount them"
@@ -215,21 +261,19 @@ mkdir -p "${base_dir}"/root/
 
 if [[ $fstype == ext4 ]]; then
     mount -t ext4 -o noatime,data=writeback,barrier=0 "${rootp}" "${base_dir}"/root
-
 else
     mount "${rootp}" "${base_dir}"/root
-
 fi
 
-mkdir -p "${base_dir}"/root/boot
-mount "${bootp}" "${base_dir}"/root/boot
+mkdir -p "${base_dir}"/root/boot/firmware
+mount "${bootp}" "${base_dir}"/root/boot/firmware
 
 status "Rsyncing rootfs into image file"
-rsync -HPavz -q --exclude boot "${work_dir}"/ "${base_dir}"/root/
+rsync -HPavz -q --exclude boot/firmware "${work_dir}"/ "${base_dir}"/root/
 sync
 
-status "Rsyncing rootfs into image file (/boot)"
-rsync -rtx -q "${work_dir}"/boot "${base_dir}"/root
+status "Rsyncing rootfs into image file (/boot/firmware)"
+rsync -rtx -q "${work_dir}"/boot/firmware "${base_dir}"/root/boot
 sync
 
 # Load default finish_image configs

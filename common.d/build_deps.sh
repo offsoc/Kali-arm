@@ -123,15 +123,11 @@ dpkg --get-selections >${backup_packages}
 
 compilers="crossbuild-essential-arm64 crossbuild-essential-armhf crossbuild-essential-armel gcc-arm-none-eabi"
 
-libpython2_dev="libexpat1-dev libpython2.7 libpython2.7-dev libpython2.7-minimal libpython2.7-stdlib"
-
-dependencies="gnupg flex bison gperf build-essential zip curl libncurses-dev zlib1g-dev \
-parted kpartx debootstrap pixz qemu-user-static abootimg cgpt vboot-kernel-utils vboot-utils \
-u-boot-tools bc lzma lzop automake autoconf m4 rsync schedtool git dosfstools e2fsprogs \
-device-tree-compiler libssl-dev systemd-container libgmp3-dev gawk qpdf make libfl-dev swig \
-${libpython2_dev} dbus python3-dev cgroup-tools lsof jetring eatmydata cmake pkg-config less \
-mmdebstrap"
-
+dependencies="arch-test autoconf automake bc bison build-essential cgpt cgroup-tools cmake curl dbus \
+debootstrap device-tree-compiler dosfstools e2fsprogs eatmydata flex gawk git gnupg kpartx           \
+libncurses-dev lsb-release libssl-dev lsof lzma lzop m4 make mmdebstrap parted pixz pkg-config       \
+python3-dev qemu-user-static rsync swig systemd-container u-boot-tools vboot-kernel-utils vboot-utils \
+libgnutls28-dev uuid-dev"
 deps="${dependencies} ${compilers}"
 
 # Update list deb packages

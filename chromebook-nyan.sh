@@ -306,8 +306,8 @@ systemctl enable smi-hack
 # Enable sshd
 systemctl enable ssh
 
-# Allow users to use NM over ssh
-install -m644 /bsp/polkit/10-NetworkManager.pkla /var/lib/polkit-1/localauthority/50-local.d
+# Allow users to use NetworkManager
+install -m644 /bsp/polkit/10-networkmanager.rules /etc/polkit-1/rules.d/
 
 cd /root
 apt download -o APT::Sandbox::User=root ca-certificates 2>/dev/null

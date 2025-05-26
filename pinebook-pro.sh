@@ -6,6 +6,7 @@
 # This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
 # More information: https://www.kali.org/docs/arm/pinebook-pro/
 #
+set -e
 
 # Hardware model
 hw_model=${hw_model:-"pinebook-pro"}
@@ -56,6 +57,9 @@ update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
 status_stage3 'Add in 43455 firmware for newer model Pinebook Pro'
 mkdir -p /lib/firmware/brcm/
 cp -a /bsp/firmware/pbp/* /lib/firmware/brcm/
+
+status_stage3 'Remove cloud-init where it is not used'
+eatmydata apt-get -y purge --autoremove cloud-init
 EOF
 
 # Run third stage
@@ -99,6 +103,12 @@ status "Create the disk partitions"
 parted -s "${image_dir}/${image_name}.img" mklabel msdos
 parted -s -a minimal "${image_dir}/${image_name}.img" mkpart primary $fstype 32MiB 100%
 
+# This comes from the u-boot-rockchip package which is installed into the image, and not the build machine
+# which is why the target and call look weird; u-boot-install-rockchip is just a script calling dd with the
+# right options and pointing to the correct files via TARGET.
+status "dd to ${loopdevice} (u-boot bootloader)"
+TARGET="${work_dir}/usr/lib/u-boot/pinebook-pro-rk3399" ${work_dir}/usr/bin/u-boot-install-rockchip "${image_dir}/${image_name}.img"
+
 # Set the partition variables
 make_loop
 
@@ -135,12 +145,6 @@ echo 'U_BOOT_PARAMETERS="console=tty1 ro rootwait"' >>"${work_dir}"/etc/default/
 status "Rsyncing rootfs into image file"
 rsync -HPavz -q "${work_dir}"/ "${base_dir}"/root/
 sync
-
-# This comes from the u-boot-rockchip package which is installed into the image, and not the build machine
-# which is why the target and call look weird; u-boot-install-rockchip is just a script calling dd with the
-# right options and pointing to the correct files via TARGET.
-status "dd to ${loopdevice} (u-boot bootloader)"
-TARGET="${work_dir}/usr/lib/u-boot/pinebook-pro-rk3399" ${work_dir}/usr/bin/u-boot-install-rockchip ${loopdevice}
 
 # Load default finish_image configs
 include finish_image

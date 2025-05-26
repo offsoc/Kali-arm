@@ -3,7 +3,7 @@
 # Kali Linux ARM build-script for NanoPi NEO Plus2 (64-bit)
 # Source: https://gitlab.com/kalilinux/build-scripts/kali-arm
 #
-# This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
+# This is a community script - you will need to generate your own image to use
 # More information: https://www.kali.org/docs/arm/nanopi-neo-plus2/
 #
 
@@ -38,6 +38,9 @@ systemctl set-default multi-user
 
 status_stage3 'Enable login over serial (No password)'
 echo "T0:23:respawn:/sbin/agetty -L ttyAMA0 115200 vt100" >> /etc/inittab
+
+status_stage3 'Remove cloud-init where it is not used'
+eatmydata apt-get -y purge --autoremove cloud-init
 EOF
 
 # Run third stage

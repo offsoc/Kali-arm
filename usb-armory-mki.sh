@@ -6,6 +6,7 @@
 # This is a community script - you will need to generate your own image to use
 # More information: https://www.kali.org/docs/arm/usb-armory-mki/
 #
+set -e
 
 # Hardware model
 hw_model=${hw_model:-"usb-armory-mki"}
@@ -26,10 +27,7 @@ add_interface eth0
 # Third stage
 cat <<EOF >>"${work_dir}"/third-stage
 status_stage3 'Install dhcp and vnc servers'
-eatmydata apt-get install -y isc-dhcp-server tightvncserver || eatmydata apt-get install -y --fix-broken
-
-status_stage3 'Allow users to use NetworkManager over ssh'
-install -m644 /bsp/polkit/10-NetworkManager.pkla /var/lib/polkit-1/localauthority/50-local.d
+eatmydata apt-get install -y isc-dhcp-server tightvncserver || eatmydata apt-get --yes --fix-broken install
 
 status_stage3 'Remove /etc/modules*'
 rm /etc/modules
@@ -87,10 +85,13 @@ status_stage3 'Only listen on usb0'
 sed -i -e 's/INTERFACES.*/INTERFACES="usb0"/g' /etc/default/isc-dhcp-server
 
 status_stage3 'Enable dhcp server'
-update-rc.d isc-dhcp-server enable
+systemctl enable isc-dhcp-server
 
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
+
+status_stage3 'Remove cloud-init where it is not used'
+eatmydata apt-get -y purge --autoremove cloud-init
 EOF
 
 # Run third stage
@@ -102,36 +103,36 @@ include clean_system
 # Kernel section. If you want to use a custom kernel, or configuration, replace
 # them in this section
 status "Kernel stuff"
-git clone -b linux-5.15.y --depth 1 git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git ${work_dir}/usr/src/kernel
+git clone -b linux-6.12.y --depth 1 git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git ${work_dir}/usr/src/kernel
 cd ${work_dir}/usr/src/kernel
 git rev-parse HEAD >${work_dir}/usr/src/kernel-at-commit
 touch .scmversion
 export ARCH=arm
 export CROSS_COMPILE=arm-none-eabi-
 #patch -p1 --no-backup-if-mismatch < ${repo_dir}/patches/ARM-drop-cc-option-fallbacks-for-architecture-select.patch
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-5.15.patch
+patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-6.12.patch
 patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/0001-wireless-carl9170-Enable-sniffer-mode-promisc-flag-t.patch
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-gpio.dts -O arch/arm/boot/dts/imx53-usbarmory-gpio.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-host.dts -O arch/arm/boot/dts/imx53-usbarmory-host.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-i2c.dts -O arch/arm/boot/dts/imx53-usbarmory-i2c.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-scc2.dts -O arch/arm/boot/dts/imx53-usbarmory-scc2.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-spi.dts -O arch/arm/boot/dts/imx53-usbarmory-spi.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/usbarmory_linux-5.15.defconfig -O ../usbarmory_linux-5.15_defconfig
-cp ../usbarmory_linux-5.15_defconfig arch/arm/configs/
-make usbarmory_linux-5.15_defconfig
-make LOADADDR=0x70008000 -j $(grep -c processor /proc/cpuinfo) uImage modules imx53-usbarmory-gpio.dtb imx53-usbarmory-i2c.dtb imx53-usbarmory-spi.dtb imx53-usbarmory.dtb imx53-usbarmory-host.dtb imx53-usbarmory-scc2.dtb
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-gpio.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-gpio.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-host.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-host.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-i2c.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-i2c.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-scc2.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-scc2.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-spi.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-spi.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/usbarmory_linux-6.12.defconfig -O ../usbarmory_linux-6.12_defconfig
+cp ../usbarmory_linux-6.12_defconfig arch/arm/configs/
+make usbarmory_linux-6.12_defconfig
+make LOADADDR=0x70008000 -j $(grep -c processor /proc/cpuinfo) uImage modules nxp/imx/imx53-usbarmory-gpio.dtb nxp/imx/imx53-usbarmory-i2c.dtb nxp/imx/imx53-usbarmory-spi.dtb nxp/imx/imx53-usbarmory.dtb nxp/imx/imx53-usbarmory-host.dtb nxp/imx/imx53-usbarmory-scc2.dtb
 make modules_install INSTALL_MOD_PATH=${work_dir}
 cp arch/arm/boot/zImage ${work_dir}/boot/
-cp arch/arm/boot/dts/imx53-usbarmory*.dtb ${work_dir}/boot/
+cp arch/arm/boot/dts/nxp/imx/imx53-usbarmory*.dtb ${work_dir}/boot/
 make mrproper
 
 # Since these aren't integrated into the kernel yet, mrproper removes them
-cp ../usbarmory_linux-5.15_defconfig arch/arm/configs/
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-gpio.dts -O arch/arm/boot/dts/imx53-usbarmory-gpio.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-host.dts -O arch/arm/boot/dts/imx53-usbarmory-host.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-i2c.dts -O arch/arm/boot/dts/imx53-usbarmory-i2c.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-scc2.dts -O arch/arm/boot/dts/imx53-usbarmory-scc2.dts
-wget $githubraw/f-secure-foundry/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-spi.dts -O arch/arm/boot/dts/imx53-usbarmory-spi.dts
+cp ../usbarmory_linux-6.12_defconfig arch/arm/configs/
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-gpio.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-gpio.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-host.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-host.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-i2c.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-i2c.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-scc2.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-scc2.dts
+wget $githubraw/usbarmory/usbarmory/master/software/kernel_conf/mark-one/imx53-usbarmory-spi.dts -O arch/arm/boot/dts/nxp/imx/imx53-usbarmory-spi.dts
 
 # Fix up the symlink for building external modules
 # kernver is used so we don't need to keep track of what the current compiled
@@ -140,7 +141,6 @@ status "building external modules"
 kernver=$(ls ${work_dir}/lib/modules/)
 cd ${work_dir}/lib/modules/${kernver}
 rm build
-rm source
 ln -s /usr/src/kernel build
 ln -s /usr/src/kernel source
 
@@ -176,8 +176,8 @@ sync
 
 status "u-Boot"
 cd "${base_dir}"
-wget ftp://ftp.denx.de/pub/u-boot/u-boot-2023.07.tar.bz2
-tar xvf u-boot-2023.07.tar.bz2 && cd u-boot-2023.07
+wget ftp://ftp.denx.de/pub/u-boot/u-boot-2025.04.tar.bz2
+tar xvf u-boot-2025.04.tar.bz2 && cd u-boot-2025.04
 wget $githubraw/usbarmory/usbarmory/master/software/u-boot/0001-Fix-microSD-detection-for-USB-armory-Mk-I.patch
 patch -p1 --no-backup-if-mismatch <0001-Fix-microSD-detection-for-USB-armory-Mk-I.patch
 make distclean

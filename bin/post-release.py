@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# ARM Devices ~ https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
+# ARM Devices ~ https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml
 
 ###############################################
 # Script to prepare the rpi-imager json script for Kali ARM quarterly releases.
@@ -52,7 +52,7 @@ file_ext = [
 # Input:
 # ------------------------------------------------------------
 # See: ./devices.yml
-# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
+# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml
 #
 # See:  ./images/*.img.sha256sum (uncompressed image sha256sum - to get the sha256sum
 #       ./images/*.img.xz.sha256sum (compressed image sha256sum - to get the sha256sum
@@ -150,7 +150,7 @@ def jsonarray(devices, vendor, name, url, extract_size, extract_sha256, image_do
         "image_download_size": image_download_size,
         "image_download_sha256": image_download_sha256,
         "devices": device_arch,
-        "init_format": "systemd",
+        "init_format": "cloudinit",
     }
 
     devices[vendor].append(jsondata)

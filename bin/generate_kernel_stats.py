@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# REF: https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-devices/-/blob/52cbfb36/scripts/generate_images_stats.py
+# REF: https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels/-/blob/52cbfb36/scripts/generate_images_stats.py
 import sys
 from datetime import datetime
 
@@ -10,7 +10,7 @@ OUTPUT_FILE = "./kernel-stats.md"
 INPUT_FILE = "./devices.yml"
 
 repo_msg = f"""
-_This table was [generated automatically](https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml) on {datetime.now().strftime('%Y-%B-%d %H:%M:%S')} from the [Kali ARM GitLab repository](https://gitlab.com/kalilinux/build-scripts/kali-arm)_
+_This table was [generated automatically](https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml) on {datetime.now().strftime('%Y-%B-%d %H:%M:%S')} from the [Kali ARM GitLab repository](https://gitlab.com/kalilinux/build-scripts/kali-arm)_
 """
 
 qty_kernels = 0
@@ -23,7 +23,7 @@ qty_versions = {
 # Input:
 # ------------------------------------------------------------
 # See: ./devices.yml
-# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
+# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml
 
 
 def yaml_parse(content):

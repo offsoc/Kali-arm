@@ -6,6 +6,7 @@
 # This is a supported device - which you can find pre-generated images on: https://www.kali.org/get-kali/
 # More information: https://www.kali.org/docs/arm/raspberry-pi-5/
 #
+set -e
 
 # Hardware model
 hw_model=${hw_model:-"raspberry-pi5"}
@@ -55,45 +56,40 @@ status_stage3 'Build RaspberryPi utils'
 git clone --quiet https://github.com/raspberrypi/utils /usr/src/utils
 cd /usr/src/utils/
 # Without gcc/make, this will fail on slim images.
-sudo apt install -y cmake device-tree-compiler libfdt-dev build-essential
+apt-get install -y cmake device-tree-compiler libfdt-dev build-essential
 cmake .
 make
 make install
+
+status_stage3 'Install the kernel'
+eatmydata apt-get -y -q install raspi-firmware linux-image-rpi-2712 linux-image-rpi-v8 linux-headers-rpi-2712 linux-headers-rpi-v8 brcmfmac-nexmon-dkms
+
+status_stage3 'Set up cloud-init'
+install -m644 /bsp/cloudinit/user-data /boot/firmware
+install -m644 /bsp/cloudinit/meta-data /boot/firmware
+install -m644 /bsp/cloudinit/cloud.cfg /etc/cloud/
+# This snippet overrides config which sets the default user so punt it.
+rm /etc/cloud/cloud.cfg.d/20_kali.cfg
+mkdir -p /var/lib/cloud/seed/nocloud-net
+ln -s /boot/firmware/user-data /var/lib/cloud/seed/nocloud-net/user-data
+ln -s /boot/firmware/meta-data /var/lib/cloud/seed/nocloud-net/meta-data
+ln -s /boot/firmware/network-config /var/lib/cloud/seed/nocloud-net/network-config
+systemctl enable cloud-init-hotplugd.socket
+systemctl enable cloud-init-main.service
+# Attempt to work around a bug where the network-config filename is written
+# incorrectly if the file does not exit previously
+# https://github.com/raspberrypi/rpi-imager/issues/945
+touch /boot/firmware/network-config
+# HACK: Make sure /boot/firmware is also mounted before cloud-init-local starts
+sed -i -e 's|RequiresMountsFor=.*|RequiresMountsFor=/var/lib/cloud /boot/firmware|' /usr/lib/systemd/system/cloud-init-local.service
+# HACK: Disable rpi-resizerootfs service
+systemctl disable rpi-resizerootfs.service
+# New service to attempt to fix up the rpi-imager hardcoding
+systemctl enable rpi-imager-fixup.service
 EOF
 
 # Run third stage
 include third_stage
-
-# Kernel and bootloader installation
-status 'Clone bootloader'
-git clone --quiet --depth 1 https://github.com/raspberrypi/firmware.git "${work_dir}"/rpi-firmware
-cp -rf "${work_dir}"/rpi-firmware/boot/* "${work_dir}"/boot/
-
-status 'Clone and build kernel'
-git clone --quiet --depth 1 https://github.com/raspberrypi/linux -b rpi-6.1.y "${work_dir}"/usr/src/kernel
-cd "${work_dir}"/usr/src/kernel
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/kali-wifi-injection-6.1.patch
-patch -p1 --no-backup-if-mismatch <${repo_dir}/patches/rpi5/0001-net-wireless-brcmfmac-Add-nexmon-support.patch
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc)
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_install INSTALL_MOD_PATH="${work_dir}"
-mkdir -p "${work_dir}"/boot/overlays
-cp arch/arm64/boot/Image "${work_dir}"/boot/kernel8.img
-cp arch/arm/boot/dts/overlays/*.dtb* "${work_dir}"/boot/overlays/
-cp arch/arm/boot/dts/overlays/README "${work_dir}"/boot/overlays/
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- mrproper
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
-
-# Fix up the symlink for building external modules
-# kernver is used so we don't need to keep track of what the current compiled
-# version is
-kernver=$(ls "${work_dir}"/lib/modules/)
-cd "${work_dir}"/lib/modules/"${kernver}"
-rm build
-rm source
-ln -s /usr/src/kernel build
-ln -s /usr/src/kernel source
-cd "${repo_dir}"
 
 # Firmware needed for the wifi
 cd "${work_dir}"
@@ -134,10 +130,10 @@ make_fstab
 
 # Configure Raspberry Pi firmware (before rsync)
 include rpi_firmware
-# We need to add in a directive so that the Pi5 knows which kernel to use.
-sed -i -e '79 i [pi5]' "${work_dir}"/boot/config.txt
-sed -i -e '80 i kernel=kernel8.img' "${work_dir}"/boot/config.txt
 
+sed -i -e 's/net.ifnames=0/net.ifnames=0 ds=nocloud/' "${work_dir}"/boot/firmware/cmdline.txt
+# RaspberryPi devices mount the first partition on /boot/firmware
+sed -i -e 's|/boot|/boot/firmware|' "${work_dir}"/etc/fstab
 
 # Create the dirs for the partitions and mount them
 status "Create the dirs for the partitions and mount them"
@@ -151,15 +147,15 @@ else
 
 fi
 
-mkdir -p "${base_dir}"/root/boot
-mount "${bootp}" "${base_dir}"/root/boot
+mkdir -p "${base_dir}"/root/boot/firmware
+mount "${bootp}" "${base_dir}"/root/boot/firmware
 
 status "Rsyncing rootfs into image file"
-rsync -HPavz -q --exclude boot "${work_dir}"/ "${base_dir}"/root/
+rsync -HPavz -q --exclude boot/firmware "${work_dir}"/ "${base_dir}"/root/
 sync
 
 status "Rsyncing boot into image file (/boot)"
-rsync -rtx -q "${work_dir}"/boot "${base_dir}"/root
+rsync -rtx -q "${work_dir}"/boot/firmware "${base_dir}"/root/boot
 sync
 
 # Load default finish_image configs

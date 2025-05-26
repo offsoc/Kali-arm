@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# NetHunter ~ https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project/-/blob/2e26ee29/nethunter-installer/prep-release.py
-# ARM Devices ~ https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
+# NetHunter ~ https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer/-/blob/712c9266/prep-release.py
+# ARM Devices ~ https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml
 
 ###############################################
 # Script to prepare Kali ARM quarterly release
@@ -44,7 +44,7 @@ qty_release_images = 0
 # Input:
 # ------------------------------------------------------------
 # See: ./devices.yml
-# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/master/devices.yml
+# https://gitlab.com/kalilinux/build-scripts/kali-arm/-/blob/main/devices.yml
 
 
 def bail(message="", strerror=""):

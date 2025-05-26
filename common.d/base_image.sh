@@ -32,7 +32,7 @@ source ./common.d/check.sh
 include packages
 
 # Execute initial debootstrap
-debootstrap_exec http://http.kali.org/kali
+debootstrap_exec ${mirror}
 
 # Define sources.list
 sources_list
@@ -59,32 +59,41 @@ status_3t=\$(grep '^status_stage3 ' \$0 | wc -l)
 
 status_stage3() {
   status_3i=\$((status_3i+1))
-  echo  "  $(tput setaf 15)✅ Stage 3 (\${status_3i}/\${status_3t}):$(tput setaf 2) \$1$(tput sgr0)"
+  colour1=""
+  colour2=""
+  if [ -n "${colour_reset}" ]; then
+    colour1="$(tput setaf 15)"
+    colour2="$(tput setaf 2)"
+  fi
+  echo  "  ${colour1}✅ Stage 3 (\${status_3i}/\${status_3t}):${colour2} \$1${colour_reset}"
 }
 
 status_stage3 'Update apt'
-export DEBIAN_FRONTEND=noninteractive
 eatmydata apt-get update
 
 status_stage3 'Install core packages'
 eatmydata apt-get -y install ${third_stage_pkgs}
 
 status_stage3 'Install packages'
-eatmydata apt-get install -y ${packages} || eatmydata apt-get install -y --fix-broken
+eatmydata apt-get install -y ${packages}
 EOF
 
 if [ "${desktop}" != "none" ]; then
   log "Desktop mode enabled: ${desktop}" green
   cat <<EOF >>"${work_dir}/third-stage"
 status_stage3 'Install desktop packages'
-eatmydata apt-get install -y ${desktop_pkgs} ${extra} || eatmydata apt-get install -y --fix-broken
+eatmydata apt-get install -y ${desktop_pkgs} ${extra}
+
+# In case any other terminals are installed, set x-t-e to qterminal as that is
+# our default terminal.
+status_stage3 'Set default terminal via update-alternatives'
+update-alternatives --verbose --set x-terminal-emulator /usr/bin/qterminal || true
 
 if [ -e /etc/lightdm/lightdm.conf ]; then
 status_stage3 'Set logind check graphical to false'
 sed -i -e 's/^#logind-check-graphical=true/logind-check-graphical=false/' /etc/lightdm/lightdm.conf
 fi
 EOF
-
 fi
 
 cat <<EOF >>"${work_dir}/third-stage"
@@ -118,10 +127,9 @@ cp -p /bsp/services/all/*.service /etc/systemd/system/
 status_stage3 'Enable SSH service'
 systemctl enable ssh
 
-status_stage3 'Allow users to use NetworkManager over SSH'
-# Ensure the localauhority directory exists before trying to install into it.
-mkdir -p /var/lib/polkit-1/localauthority/50-local.d
-install -m644 /bsp/polkit/10-NetworkManager.pkla /var/lib/polkit-1/localauthority/50-local.d
+status_stage3 'Allow users to use NetworkManager'
+mkdir -p /etc/polkit-1/rules.d/
+install -m644 /bsp/polkit/10-networkmanager.rules /etc/polkit-1/rules.d/
 
 status_stage3 'Copy script growpart'
 install -m755 /bsp/scripts/growpart /usr/local/bin/
@@ -156,6 +164,7 @@ if [[ ${architecture} != armel ]]; then
 fi
 
 status_stage3 'Try and make the console a bit nicer. Set the terminus font for a bit nicer display'
+sed -i -e 's/CHARMAP=.*/CHARMAP="UTF-8"/' /etc/default/console-setup
 sed -i -e 's/FONTFACE=.*/FONTFACE="Terminus"/' /etc/default/console-setup
 sed -i -e 's/FONTSIZE=.*/FONTSIZE="6x12"/' /etc/default/console-setup
 

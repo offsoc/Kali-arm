@@ -26,7 +26,7 @@ add_interface eth0
 # Third stage
 cat <<EOF >>"${work_dir}"/third-stage
 status_stage3 'Install dhcp server'
-eatmydata apt-get install -y isc-dhcp-server || eatmydata apt-get install -y --fix-broken
+eatmydata apt-get install -y isc-dhcp-server
 
 status_stage3 'Ensure mkimage is available'
 eatmydata apt-get install -y u-boot-tools
@@ -40,6 +40,9 @@ echo "T1:12345:respawn:/sbin/getty -L ttymxc1 115200 vt100" >> /etc/inittab
 
 status_stage3 'Fixup wireless-regdb signature'
 update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
+
+status_stage3 'Remove cloud-init where it is not used'
+eatmydata apt-get -y purge --autoremove cloud-init
 EOF
 
 # Run third stage
